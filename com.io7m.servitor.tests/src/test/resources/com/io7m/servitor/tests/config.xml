@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Configuration xmlns="urn:com.io7m.servitor:1:0">
+
+  <!--                          -->
+  <!-- Nexus Package Manager 03 -->
+  <!--                          -->
+
+  <Service ID="edbb08e5-7bc6-4f3b-9068-4c82df07ed34"
+           Name="nexus03"
+           Description="Nexus Package Manager">
+
+    <Image Registry="registry.int.arc7.info:5000"
+           Name="nexus3"
+           Tag="3.53.0"
+           Hash="sha256:5b9bef9e5354088edc79bd05db7144eccd0d217e8986c3e41c5191a892b38025"/>
+
+    <Limits CPU="1.0"
+            Memory="4000000000"/>
+
+    <PublishPorts>
+      <PublishPort Host="packages03.int.arc7.info"
+                   PortInternal="8081"
+                   PortExternal="8081"
+                   Family="IPv6"
+                   Type="TCP"/>
+    </PublishPorts>
+
+    <RunAs User="_nexus"
+           Group="_nexus"/>
+
+    <Volumes>
+      <VolumeZFS HostPath="/storage/containers/nexus03"
+                 MountPath="/nexus-data">
+        <VolumeFlag Flag="READ_WRITE"/>
+        <VolumeFlag Flag="RELABEL_PRIVATE"/>
+      </VolumeZFS>
+    </Volumes>
+  </Service>
+
+  <!--            -->
+  <!-- Jenkins 03 -->
+  <!--            -->
+
+  <Service ID="f24a5e58-fb20-445f-97fa-9b9763d454e6"
+           Name="jenkins03"
+           Description="Jenkins">
+
+    <Image Registry="registry.int.arc7.info:5000"
+           Name="jenkins"
+           Tag="2.387.3-lts-jdk11"
+           Hash="sha256:b36a2b4fc774b77bb84834ea28e1393b4cbc453c03b95bc1fec166e06f671060"/>
+
+    <Limits CPU="2.0"
+            Memory="2000000000"/>
+
+    <PublishPorts>
+      <PublishPort Host="jenkins03.int.arc7.info"
+                   PortInternal="8080"
+                   PortExternal="8080"
+                   Family="IPv6"
+                   Type="TCP"/>
+    </PublishPorts>
+
+    <RunAs User="_jenkins"
+           Group="_jenkins"/>
+
+    <Volumes>
+      <VolumeZFS HostPath="/storage/containers/jenkins03"
+                 MountPath="/var/jenkins_home">
+        <VolumeFlag Flag="READ_WRITE"/>
+        <VolumeFlag Flag="RELABEL_PRIVATE"/>
+      </VolumeZFS>
+    </Volumes>
+  </Service>
+
+  <!--            -->
+  <!-- Gtyrell 01 -->
+  <!--            -->
+
+  <Service ID="37c6204e-6f70-49b2-bbd0-d2f4f642a91a"
+           Name="gtyrell01"
+           Description="Gtyrell">
+
+    <Image Registry="registry.int.arc7.info:5000"
+           Name="gtyrell"
+           Tag="3.2.0"
+           Hash="sha256:d572470ea7893fed48007fec9ea312e6e3144b3bdd679b28f23ca1998b9fdd8b"/>
+
+    <Limits CPU="1.0"
+            Memory="128000000"/>
+
+    <RunAs User="_gtyrell"
+           Group="_gtyrell"/>
+
+    <Volumes>
+      <VolumeZFS HostPath="/storage/containers/gtyrell01/etc"
+                 MountPath="/gtyrell/etc">
+        <VolumeFlag Flag="READ_ONLY"/>
+        <VolumeFlag Flag="RELABEL_PRIVATE"/>
+      </VolumeZFS>
+      <VolumeFile HostPath="/storage/containers/gtyrell01/etc/git-credentials"
+                  MountPath="/root/.git-credentials">
+        <VolumeFlag Flag="READ_ONLY"/>
+        <VolumeFlag Flag="RELABEL_PRIVATE"/>
+      </VolumeFile>
+      <VolumeFile HostPath="/storage/containers/gtyrell01/etc/gitconfig"
+                  MountPath="/root/.gitconfig">
+        <VolumeFlag Flag="READ_ONLY"/>
+        <VolumeFlag Flag="RELABEL_PRIVATE"/>
+      </VolumeFile>
+      <VolumeZFS HostPath="/storage/git"
+                 MountPath="/data">
+        <VolumeFlag Flag="RELABEL_SHARED"/>
+        <VolumeFlag Flag="READ_WRITE"/>
+      </VolumeZFS>
+    </Volumes>
+  </Service>
+
+  <!--            -->
+  <!-- Grafana 01 -->
+  <!--            -->
+
+  <ServiceGroup ID="0490e76a-2b48-4533-883a-03c461d9a0d3"
+                Name="grafana01"
+                Description="Grafana">
+
+    <!-- Main grafana graphing service. -->
+    <Service ID="f6114d5d-fd24-451c-9ad3-99def03e90b5"
+             Name="grafana"
+             Description="Grafana">
+
+      <Image Registry="registry.int.arc7.info:5000"
+             Name="grafana-oss"
+             Tag="9.5.2"
+             Hash="sha256:50dc002f67c1f1ae43fec4fd5f1f722c3e15407e3c4a0ded7ffa81ca19b3b3f5"/>
+
+      <Limits CPU="1.0"
+              Memory="512000000"/>
+
+      <PublishPorts>
+        <PublishPort Host="grafana01.int.arc7.info"
+                     PortInternal="3000"
+                     PortExternal="3000"
+                     Family="IPv6"
+                     Type="TCP"/>
+      </PublishPorts>
+
+      <RunAs User="_grafana"
+             Group="_grafana"/>
+
+      <Volumes>
+        <VolumeZFS HostPath="/storage/containers/grafana01/grafana/etc"
+                   MountPath="/etc/grafana">
+          <VolumeFlag Flag="RELABEL_PRIVATE"/>
+          <VolumeFlag Flag="READ_ONLY"/>
+        </VolumeZFS>
+
+        <VolumeZFS HostPath="/storage/containers/grafana01/grafana/data"
+                   MountPath="/var/lib/grafana">
+          <VolumeFlag Flag="RELABEL_PRIVATE"/>
+          <VolumeFlag Flag="READ_WRITE"/>
+        </VolumeZFS>
+
+        <VolumeZFS HostPath="/storage/containers/grafana01/grafana/log"
+                   MountPath="/var/log/grafana">
+          <VolumeFlag Flag="RELABEL_PRIVATE"/>
+          <VolumeFlag Flag="READ_WRITE"/>
+        </VolumeZFS>
+      </Volumes>
+    </Service>
+
+    <!-- Grafana Tempo trace storage. -->
+    <Service ID="b559d195-159d-4c6a-9790-7adc5f9f7096"
+             Name="tempo"
+             Description="Grafana Tempo">
+
+      <Image Registry="registry.int.arc7.info:5000"
+             Name="grafana-tempo"
+             Tag="2.1.1"
+             Hash="sha256:6ad3a9693d45c59e12d73c5cc7e570b9852cfcf69cbaddd402d0c52fa8cca91d"/>
+
+      <Limits CPU="1.0"
+              Memory="512000000"/>
+
+      <PublishPorts>
+        <PublishPort Host="grafana01.int.arc7.info"
+                     PortInternal="4317"
+                     PortExternal="4317"
+                     Family="IPv6"
+                     Type="TCP"/>
+        <PublishPort Host="grafana01.int.arc7.info"
+                     PortInternal="4318"
+                     PortExternal="4318"
+                     Family="IPv6"
+                     Type="TCP"/>
+        <PublishPort Host="grafana01.int.arc7.info"
+                     PortInternal="3200"
+                     PortExternal="3200"
+                     Family="IPv6"
+                     Type="TCP"/>
+      </PublishPorts>
+
+      <RunAs User="_grafana"
+             Group="_grafana"/>
+
+      <Volumes>
+        <VolumeZFS HostPath="/storage/containers/grafana01/tempo/etc"
+                   MountPath="/tempo/etc">
+          <VolumeFlag Flag="RELABEL_PRIVATE"/>
+          <VolumeFlag Flag="READ_ONLY"/>
+        </VolumeZFS>
+
+        <VolumeZFS HostPath="/storage/containers/grafana01/tempo/data"
+                   MountPath="/tempo/var">
+          <VolumeFlag Flag="RELABEL_PRIVATE"/>
+          <VolumeFlag Flag="READ_WRITE"/>
+        </VolumeZFS>
+      </Volumes>
+    </Service>
+  </ServiceGroup>
+
+</Configuration>

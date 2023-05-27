@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Configuration xmlns="urn:com.io7m.servitor:1:0">
+
+  <!--                          -->
+  <!-- Nexus Package Manager 03 -->
+  <!--                          -->
+
+  <Service ID="edbb08e5-7bc6-4f3b-9068-4c82df07ed34"
+           Name="nexus03"
+           Description="Nexus Package Manager">
+
+    <Image Registry="registry.int.arc7.info:5000"
+           Name="nexus3"
+           Tag="3.53.0"
+           Hash="sha256:5b9bef9e5354088edc79bd05db7144eccd0d217e8986c3e41c5191a892b38025"/>
+
+    <Limits CPU="x1.0"
+            Memory="x4000000000"/>
+
+    <PublishPorts>
+      <PublishPort Host="packages03.int.arc7.info"
+                   PortInternal="x8081"
+                   PortExternal="x8081"
+                   Family="xIPv6"
+                   Type="xTCP"/>
+    </PublishPorts>
+
+    <RunAs User="_nexus"
+           Group="_nexus"/>
+
+    <Volumes>
+      <VolumeZFS HostPath="/storage/containers/nexus03"
+                 MountPath="/nexus-data">
+        <VolumeFlag Flag="xREAD_WRITE"/>
+        <VolumeFlag Flag="xRELABEL_PRIVATE"/>
+      </VolumeZFS>
+    </Volumes>
+  </Service>
+
+</Configuration>

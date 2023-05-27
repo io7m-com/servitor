@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:s="urn:com.io7m.servitor:1:0"
+        targetNamespace="urn:com.io7m.servitor:1:0">
+
+  <simpleType name="UUIDType">
+    <annotation>
+      <documentation xml:lang="en">
+        A UUID value.
+      </documentation>
+    </annotation>
+    <restriction base="string">
+      <pattern value="[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"/>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="DigestType">
+    <annotation>
+      <documentation xml:lang="en">
+        A digest value for an image manifest.
+      </documentation>
+    </annotation>
+    <restriction base="string">
+      <pattern value="[a-z0-9]{1,8}:[a-f0-9]{1,256}"/>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="ServiceNameType">
+    <annotation>
+      <documentation xml:lang="en">
+        The type of service names.
+      </documentation>
+    </annotation>
+
+    <restriction base="string">
+      <pattern value="[a-z][a-z0-9_\\-]{0,63}"/>
+    </restriction>
+  </simpleType>
+
+  <element name="Image">
+    <annotation>
+      <documentation xml:lang="en">
+        The image used to instantiate a container.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="Registry"
+                 type="string"
+                 use="required">
+        <annotation>
+          <documentation xml:lang="en">
+            The registry address (such as "quay.io" or "registry.example.com:5000").
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="Name"
+                 type="string"
+                 use="required">
+        <annotation>
+          <documentation xml:lang="en">
+            The image name (such as "postgres" or "io7mcom/idstore").
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="Tag"
+                 type="string"
+                 use="required">
+        <annotation>
+          <documentation xml:lang="en">
+            The image tag (such as "3.3.1" or "2.387.3-lts-jdk11").
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="Hash"
+                 type="s:DigestType"
+                 use="required">
+        <annotation>
+          <documentation xml:lang="en">
+            The manifest hash (such as "sha256:6ad3a9693d45c59e12d73c5cc7e570b9852cfcf69cbaddd402d0c52fa8cca91d").
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name="Limits">
+    <annotation>
+      <documentation xml:lang="en">
+        The resource limits for a service.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="CPU"
+                 type="double"
+                 use="required">
+        <annotation>
+          <documentation xml:lang="en">
+            The CPU share. See podman-run(1) "--cpus".
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="Memory"
+                 type="unsignedLong"
+                 use="required">
+        <annotation>
+          <documentation xml:lang="en">
+            The memory limit in bytes. See podman-run(1) "--memory".
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name="RunAs">
+    <annotation>
+      <documentation xml:lang="en">
+        The user and group as which the service will be executed.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="User"
+                 type="string"
+                 use="required">
+        <annotation>
+          <documentation xml:lang="en">
+            The user as which the service will be executed.
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="Group"
+                 type="string"
+                 use="required">
+        <annotation>
+          <documentation xml:lang="en">
+            The group as which the service will be executed.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <simpleType name="PortType">
+    <annotation>
+      <documentation xml:lang="en">
+        The type of network port.
+      </documentation>
+    </annotation>
+
+    <restriction base="string">
+      <enumeration value="TCP">
+        <annotation>
+          <documentation xml:lang="en">
+            TCP ports.
+          </documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="UDP">
+        <annotation>
+          <documentation xml:lang="en">
+            UDP ports.
+          </documentation>
+        </annotation>
+      </enumeration>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="PortFamily">
+    <annotation>
+      <documentation xml:lang="en">
+        The address family of a port.
+      </documentation>
+    </annotation>
+
+    <restriction base="string">
+      <enumeration value="IPv4">
+        <annotation>
+          <documentation xml:lang="en">
+            IP version 4.
+          </documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="IPv6">
+        <annotation>
+          <documentation xml:lang="en">
+            IP version 6.
+          </documentation>
+        </annotation>
+      </enumeration>
+    </restriction>
+  </simpleType>
+
+  <element name="PublishPort">
+    <annotation>
+      <documentation xml:lang="en">
+        The specification of a port to be exposed by a container.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="Host"
+                 use="required"
+                 type="string">
+        <annotation>
+          <documentation xml:lang="en">
+            The address on which the port will be exposed on the host.
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="PortInternal"
+                 use="required"
+                 type="unsignedShort">
+        <annotation>
+          <documentation xml:lang="en">
+            The port inside the container.
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="PortExternal"
+                 use="required"
+                 type="unsignedShort">
+        <annotation>
+          <documentation xml:lang="en">
+            The port on the host.
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="Type"
+                 use="required"
+                 type="s:PortType">
+        <annotation>
+          <documentation xml:lang="en">
+            The port type.
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="Family"
+                 use="required"
+                 type="s:PortFamily">
+        <annotation>
+          <documentation xml:lang="en">
+            The port family.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name="PublishPorts">
+    <annotation>
+      <documentation xml:lang="en">
+        The set of ports exposed by a container.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <sequence minOccurs="1"
+                maxOccurs="unbounded">
+        <element ref="s:PublishPort"/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <simpleType name="VolumeFlagType">
+    <annotation>
+      <documentation xml:lang="en">
+        The flags associated with a volume on a container.
+      </documentation>
+    </annotation>
+
+    <restriction base="string">
+      <enumeration value="READ_ONLY">
+        <annotation>
+          <documentation xml:lang="en">
+            The volume will be mounted read-only in the container.
+          </documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="READ_WRITE">
+        <annotation>
+          <documentation xml:lang="en">
+            The volume will be mounted read-write in the container.
+          </documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="USE_CORRECT_UID_GID">
+        <annotation>
+          <documentation xml:lang="en">
+            Automatically chown the volume to the correct UID/GID.
+          </documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="RELABEL_SHARED">
+        <annotation>
+          <documentation xml:lang="en">
+            Relabel the volume using an SELinux label that allows multiple containers to access the volume.
+          </documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="RELABEL_PRIVATE">
+        <annotation>
+          <documentation xml:lang="en">
+            Relabel the volume using an SELinux label that does not allow any other containers to access the volume.
+          </documentation>
+        </annotation>
+      </enumeration>
+    </restriction>
+  </simpleType>
+
+  <element name="VolumeFlag">
+    <annotation>
+      <documentation xml:lang="en">
+        A volume flag element.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="Flag"
+                 use="required"
+                 type="s:VolumeFlagType"/>
+    </complexType>
+  </element>
+
+  <complexType name="VolumeType"
+               abstract="true">
+    <annotation>
+      <documentation xml:lang="en">
+        The base type of volumes.
+      </documentation>
+    </annotation>
+
+    <sequence minOccurs="0"
+              maxOccurs="unbounded">
+      <element ref="s:VolumeFlag"/>
+    </sequence>
+    <attribute name="HostPath"
+               type="string"
+               use="required">
+      <annotation>
+        <documentation xml:lang="en">
+          The path of the volume on the host.
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name="MountPath"
+               type="string"
+               use="required">
+      <annotation>
+        <documentation xml:lang="en">
+          The path at which to mount the volume inside the container.
+        </documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="VolumeZFSType">
+    <annotation>
+      <documentation xml:lang="en">
+        The type of volumes that are ZFS filesystems.
+      </documentation>
+    </annotation>
+
+    <complexContent>
+      <extension base="s:VolumeType"/>
+    </complexContent>
+  </complexType>
+
+  <element name="VolumeZFS"
+           type="s:VolumeZFSType"/>
+
+  <complexType name="VolumeFileType">
+    <annotation>
+      <documentation xml:lang="en">
+        The type of volumes that are regular files.
+      </documentation>
+    </annotation>
+
+    <complexContent>
+      <extension base="s:VolumeType"/>
+    </complexContent>
+  </complexType>
+
+  <element name="VolumeFile"
+           type="s:VolumeFileType"/>
+
+  <group name="VolumeGroupType">
+    <choice>
+      <element ref="s:VolumeFile"/>
+      <element ref="s:VolumeZFS"/>
+    </choice>
+  </group>
+
+  <element name="Volumes">
+    <annotation>
+      <documentation xml:lang="en">
+        The volumes used by a container.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <sequence minOccurs="1"
+                maxOccurs="unbounded">
+        <group ref="s:VolumeGroupType"/>
+      </sequence>
+    </complexType>
+
+    <unique name="VolumeMountsUnique">
+      <annotation>
+        <documentation xml:lang="en">
+          Multiple volumes cannot be mounted at the same path within the container.
+        </documentation>
+      </annotation>
+      <selector xpath="s:VolumeFile|s:VolumeZFS"/>
+      <field xpath="@MountPath"/>
+    </unique>
+  </element>
+
+  <complexType name="ServiceGroupElementType"
+               abstract="true">
+    <annotation>
+      <documentation xml:lang="en">
+        The type of services or service groups.
+      </documentation>
+    </annotation>
+
+    <attribute name="Name"
+               type="s:ServiceNameType"
+               use="required">
+      <annotation>
+        <documentation xml:lang="en">
+          The name of the service.
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name="Description"
+               type="string"
+               use="required">
+      <annotation>
+        <documentation xml:lang="en">
+          The description of the service.
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name="ID"
+               type="s:UUIDType"
+               use="required">
+      <annotation>
+        <documentation xml:lang="en">
+          The unique identifier of the service.
+        </documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="ServiceType">
+    <annotation>
+      <documentation xml:lang="en">
+        A plain service.
+      </documentation>
+    </annotation>
+
+    <complexContent>
+      <extension base="s:ServiceGroupElementType">
+        <sequence>
+          <element ref="s:Image"/>
+          <element ref="s:Limits"/>
+          <sequence minOccurs="0"
+                    maxOccurs="1">
+            <element ref="s:PublishPorts"/>
+          </sequence>
+          <element ref="s:RunAs"/>
+          <sequence minOccurs="0"
+                    maxOccurs="1">
+            <element ref="s:Volumes"/>
+          </sequence>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="Service"
+           type="s:ServiceType"/>
+
+  <group name="ServiceGroupElements">
+    <choice>
+      <element ref="s:Service"/>
+      <element ref="s:ServiceGroup"/>
+    </choice>
+  </group>
+
+  <complexType name="ServiceGroupType">
+    <annotation>
+      <documentation xml:lang="en">
+        A group of services.
+      </documentation>
+    </annotation>
+
+    <complexContent>
+      <extension base="s:ServiceGroupElementType">
+        <sequence minOccurs="1"
+                  maxOccurs="unbounded">
+          <group ref="s:ServiceGroupElements"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="ServiceGroup"
+           type="s:ServiceGroupType">
+    <unique name="ServiceGroupServicesUniqueName">
+      <annotation>
+        <documentation xml:lang="en">
+          Names within a service group are unique.
+        </documentation>
+      </annotation>
+      <selector xpath="s:Service|s:ServiceGroup"/>
+      <field xpath="@Name"/>
+    </unique>
+  </element>
+
+  <element name="Configuration">
+    <complexType>
+      <sequence minOccurs="0"
+                maxOccurs="unbounded">
+        <group ref="s:ServiceGroupElements"/>
+      </sequence>
+    </complexType>
+
+    <unique name="ConfigurationServiceUniqueName">
+      <annotation>
+        <documentation xml:lang="en">
+          Names within the top level are unique.
+        </documentation>
+      </annotation>
+      <selector xpath="s:Service|s:ServiceGroup"/>
+      <field xpath="@Name"/>
+    </unique>
+
+    <key name="ServiceIdKey">
+      <selector xpath=".//s:Service|.//s:ServiceGroup"/>
+      <field xpath="@ID"/>
+    </key>
+  </element>
+
+</schema>
