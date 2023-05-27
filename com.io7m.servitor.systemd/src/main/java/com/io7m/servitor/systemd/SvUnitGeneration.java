@@ -46,6 +46,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.io7m.servitor.core.SvContainerFlag.READ_ONLY_ROOT;
+import static com.io7m.servitor.core.SvContainerFlag.REMAP_USER_TO_CONTAINER_ROOT;
 
 /**
  * Functions to generate {@code systemd} units.
@@ -187,6 +188,9 @@ public final class SvUnitGeneration
 
     if (service.containerFlags().contains(READ_ONLY_ROOT)) {
       writer.println("  --read-only \\");
+    }
+    if (service.containerFlags().contains(REMAP_USER_TO_CONTAINER_ROOT)) {
+      writer.println("  --user 0:0 \\");
     }
 
     writer.println("  --rm \\");

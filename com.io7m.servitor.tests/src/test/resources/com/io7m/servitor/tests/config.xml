@@ -36,6 +36,10 @@
         <VolumeFlag Flag="RELABEL_PRIVATE"/>
       </VolumeZFS>
     </Volumes>
+
+    <ContainerFlags>
+      <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
+    </ContainerFlags>
   </Service>
 
   <!--            -->
@@ -72,6 +76,10 @@
         <VolumeFlag Flag="RELABEL_PRIVATE"/>
       </VolumeZFS>
     </Volumes>
+
+    <ContainerFlags>
+      <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
+    </ContainerFlags>
   </Service>
 
   <!--            -->
@@ -181,6 +189,10 @@
           <VolumeFlag Flag="READ_WRITE"/>
         </VolumeZFS>
       </Volumes>
+
+      <ContainerFlags>
+        <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
+      </ContainerFlags>
     </Service>
 
     <!-- Grafana Tempo trace storage. -->
@@ -230,6 +242,10 @@
           <VolumeFlag Flag="READ_WRITE"/>
         </VolumeZFS>
       </Volumes>
+
+      <ContainerFlags>
+        <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
+      </ContainerFlags>
     </Service>
   </ServiceGroup>
 

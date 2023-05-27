@@ -279,6 +279,19 @@
           </documentation>
         </annotation>
       </enumeration>
+      <enumeration value="REMAP_USER_TO_CONTAINER_ROOT">
+        <annotation>
+          <documentation xml:lang="en">
+            Remap the user:group the entrypoint command is executed as to 0:0. This
+            is primarily useful when an image has specified that the main command will
+            run as a particular user (for security reasons), but the container itself
+            is being run as a specific user on the host, and therefore using a separate
+            user inside the container is unnecessary (and annoying). This causes the
+            container invocation to contain an option that maps the container entrypoint
+            command user to root inside the container.
+          </documentation>
+        </annotation>
+      </enumeration>
     </restriction>
   </simpleType>
 

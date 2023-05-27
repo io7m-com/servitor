@@ -27,5 +27,11 @@ public enum SvContainerFlag
    * The root filesystem of the container is read-only.
    */
 
-  READ_ONLY_ROOT
+  READ_ONLY_ROOT,
+
+  /**
+   * Remap the user:group the entrypoint command is executed as to 0:0.
+   */
+
+  REMAP_USER_TO_CONTAINER_ROOT
 }
