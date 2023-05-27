@@ -515,10 +515,22 @@
     </annotation>
 
     <complexType>
-      <sequence minOccurs="1" maxOccurs="unbounded">
+      <sequence minOccurs="1"
+                maxOccurs="unbounded">
         <element ref="s:EnvironmentVariable"/>
       </sequence>
     </complexType>
+
+    <unique name="EnvironmentVariablesUnique">
+      <annotation>
+        <documentation xml:lang="en">
+          Environment variables are unique within a container.
+        </documentation>
+      </annotation>
+
+      <selector xpath="s:EnvironmentVariable"/>
+      <field xpath="@Name"/>
+    </unique>
   </element>
 
   <complexType name="ServiceType">
