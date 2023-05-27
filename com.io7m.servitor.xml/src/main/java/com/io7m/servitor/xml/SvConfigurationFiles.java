@@ -36,6 +36,7 @@ import com.io7m.servitor.core.SvVolumeFlag;
 import com.io7m.servitor.core.SvVolumeType;
 import com.io7m.servitor.core.SvVolumeZFS;
 import com.io7m.servitor.xml.jaxb_v1.Configuration;
+import com.io7m.servitor.xml.jaxb_v1.ContainerArguments;
 import com.io7m.servitor.xml.jaxb_v1.ContainerFlags;
 import com.io7m.servitor.xml.jaxb_v1.EnvironmentVariables;
 import com.io7m.servitor.xml.jaxb_v1.Image;
@@ -268,7 +269,8 @@ public final class SvConfigurationFiles
       processPorts(service.getPublishPorts()),
       processVolumes(service.getVolumes()),
       processContainerFlags(service.getContainerFlags()),
-      processEnvironmentVariables(service.getEnvironmentVariables())
+      processEnvironmentVariables(service.getEnvironmentVariables()),
+      processContainerArguments(service.getContainerArguments())
     );
 
     graph.addVertex(result);
@@ -277,6 +279,20 @@ public final class SvConfigurationFiles
       graph.addEdge(group, result, new SvGroupMembership(group, result));
     }
     return result;
+  }
+
+  private static List<String> processContainerArguments(
+    final ContainerArguments containerArguments)
+  {
+    if (containerArguments == null) {
+      return List.of();
+    }
+
+    final var results = new ArrayList<String>();
+    for (final var argument : containerArguments.getContainerArgument()) {
+      results.add(argument.getValue());
+    }
+    return List.copyOf(results);
   }
 
   private static Map<String, String> processEnvironmentVariables(

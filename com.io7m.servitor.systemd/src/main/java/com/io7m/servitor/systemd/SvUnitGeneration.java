@@ -27,6 +27,7 @@ import com.io7m.servitor.core.SvServiceElementType;
 import com.io7m.servitor.core.SvServiceGroup;
 import com.io7m.servitor.core.SvVolumeFlag;
 import com.io7m.servitor.core.SvVolumeType;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jgrapht.traverse.DepthFirstIterator;
 
 import java.io.PrintWriter;
@@ -44,6 +45,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.io7m.servitor.core.SvContainerFlag.READ_ONLY_ROOT;
 import static com.io7m.servitor.core.SvContainerFlag.REMAP_USER_TO_CONTAINER_ROOT;
@@ -201,7 +203,26 @@ public final class SvUnitGeneration
     writeVolumes(writer, service.volumes());
     writePorts(writer, service.ports());
     writeImage(writer, service.image());
+    writeArguments(writer, service.containerArguments());
     writer.println();
+  }
+
+  private static void writeArguments(
+    final PrintWriter writer,
+    final List<String> arguments)
+  {
+    if (arguments.isEmpty()) {
+      writer.println();
+      return;
+    }
+
+    writer.print("  ");
+    writer.println(
+      arguments.stream()
+        .map(StringEscapeUtils::escapeJava)
+        .map("'%s'"::formatted)
+        .collect(Collectors.joining(" "))
+    );
   }
 
   private static void writeEnvironmentVariables(
@@ -253,13 +274,12 @@ public final class SvUnitGeneration
     final SvOCIImage image)
   {
     writer.printf(
-      "  %s/%s:%s@%s",
+      "  %s/%s:%s@%s \\%n",
       image.registry(),
       image.name(),
       image.tag(),
       image.hash()
     );
-    writer.println();
   }
 
   private static void writePorts(

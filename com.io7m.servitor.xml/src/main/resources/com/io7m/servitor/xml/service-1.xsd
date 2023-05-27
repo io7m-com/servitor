@@ -264,6 +264,23 @@
     </complexType>
   </element>
 
+  <element name="ContainerArgument">
+    <complexType>
+      <attribute name="Value"
+                 type="string"
+                 use="required"/>
+    </complexType>
+  </element>
+
+  <element name="ContainerArguments">
+    <complexType>
+      <sequence minOccurs="1"
+                maxOccurs="unbounded">
+        <element ref="s:ContainerArgument"/>
+      </sequence>
+    </complexType>
+  </element>
+
   <simpleType name="ContainerFlagType">
     <annotation>
       <documentation xml:lang="en">
@@ -556,24 +573,35 @@
     <complexContent>
       <extension base="s:ServiceGroupElementType">
         <sequence>
-          <element ref="s:Image"/>
-          <element ref="s:Limits"/>
           <sequence minOccurs="0"
                     maxOccurs="1">
-            <element ref="s:PublishPorts"/>
+            <element ref="s:ContainerArguments"/>
           </sequence>
-          <element ref="s:RunAs"/>
-          <sequence minOccurs="0"
-                    maxOccurs="1">
-            <element ref="s:Volumes"/>
-          </sequence>
+
           <sequence minOccurs="0"
                     maxOccurs="1">
             <element ref="s:ContainerFlags"/>
           </sequence>
+
           <sequence minOccurs="0"
                     maxOccurs="1">
             <element ref="s:EnvironmentVariables"/>
+          </sequence>
+
+          <element ref="s:Image"/>
+
+          <element ref="s:Limits"/>
+
+          <sequence minOccurs="0"
+                    maxOccurs="1">
+            <element ref="s:PublishPorts"/>
+          </sequence>
+
+          <element ref="s:RunAs"/>
+
+          <sequence minOccurs="0"
+                    maxOccurs="1">
+            <element ref="s:Volumes"/>
           </sequence>
         </sequence>
       </extension>

@@ -10,6 +10,10 @@
            Name="nexus03"
            Description="Nexus Package Manager">
 
+    <ContainerFlags>
+      <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
+    </ContainerFlags>
+
     <Image Registry="registry.int.arc7.info:5000"
            Name="nexus3"
            Tag="3.53.0"
@@ -36,10 +40,6 @@
         <VolumeFlag Flag="RELABEL_PRIVATE"/>
       </VolumeZFS>
     </Volumes>
-
-    <ContainerFlags>
-      <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
-    </ContainerFlags>
   </Service>
 
   <!--            -->
@@ -49,6 +49,10 @@
   <Service ID="f24a5e58-fb20-445f-97fa-9b9763d454e6"
            Name="jenkins03"
            Description="Jenkins">
+
+    <ContainerFlags>
+      <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
+    </ContainerFlags>
 
     <Image Registry="registry.int.arc7.info:5000"
            Name="jenkins"
@@ -76,10 +80,6 @@
         <VolumeFlag Flag="RELABEL_PRIVATE"/>
       </VolumeZFS>
     </Volumes>
-
-    <ContainerFlags>
-      <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
-    </ContainerFlags>
   </Service>
 
   <!--            -->
@@ -89,6 +89,23 @@
   <Service ID="37c6204e-6f70-49b2-bbd0-d2f4f642a91a"
            Name="gtyrell01"
            Description="Gtyrell">
+
+    <ContainerArguments>
+      <ContainerArgument Value="/gtyrell/etc/server.conf"/>
+    </ContainerArguments>
+
+    <ContainerFlags>
+      <ContainerFlag Value="READ_ONLY_ROOT"/>
+    </ContainerFlags>
+
+    <EnvironmentVariables>
+      <EnvironmentVariable Name="VAR0"
+                           Value="VAL0"/>
+      <EnvironmentVariable Name="VAR1"
+                           Value="VAL1"/>
+      <EnvironmentVariable Name="VAR2"
+                           Value="VAL2"/>
+    </EnvironmentVariables>
 
     <Image Registry="registry.int.arc7.info:5000"
            Name="gtyrell"
@@ -123,19 +140,6 @@
         <VolumeFlag Flag="READ_WRITE"/>
       </VolumeZFS>
     </Volumes>
-
-    <ContainerFlags>
-      <ContainerFlag Value="READ_ONLY_ROOT"/>
-    </ContainerFlags>
-
-    <EnvironmentVariables>
-      <EnvironmentVariable Name="VAR0"
-                           Value="VAL0"/>
-      <EnvironmentVariable Name="VAR1"
-                           Value="VAL1"/>
-      <EnvironmentVariable Name="VAR2"
-                           Value="VAL2"/>
-    </EnvironmentVariables>
   </Service>
 
   <!--            -->
@@ -150,6 +154,10 @@
     <Service ID="f6114d5d-fd24-451c-9ad3-99def03e90b5"
              Name="grafana"
              Description="Grafana">
+
+      <ContainerFlags>
+        <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
+      </ContainerFlags>
 
       <Image Registry="registry.int.arc7.info:5000"
              Name="grafana-oss"
@@ -189,16 +197,16 @@
           <VolumeFlag Flag="READ_WRITE"/>
         </VolumeZFS>
       </Volumes>
-
-      <ContainerFlags>
-        <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
-      </ContainerFlags>
     </Service>
 
     <!-- Grafana Tempo trace storage. -->
     <Service ID="b559d195-159d-4c6a-9790-7adc5f9f7096"
              Name="tempo"
              Description="Grafana Tempo">
+
+      <ContainerFlags>
+        <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
+      </ContainerFlags>
 
       <Image Registry="registry.int.arc7.info:5000"
              Name="grafana-tempo"
@@ -242,10 +250,6 @@
           <VolumeFlag Flag="READ_WRITE"/>
         </VolumeZFS>
       </Volumes>
-
-      <ContainerFlags>
-        <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
-      </ContainerFlags>
     </Service>
   </ServiceGroup>
 

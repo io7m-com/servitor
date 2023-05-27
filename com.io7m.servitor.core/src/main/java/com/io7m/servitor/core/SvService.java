@@ -36,6 +36,7 @@ import java.util.UUID;
  * @param volumes              The volumes
  * @param containerFlags       The container flags
  * @param environmentVariables The environment variables
+ * @param containerArguments   The command-line arguments passed to the container entrypoint
  */
 
 public record SvService(
@@ -48,7 +49,8 @@ public record SvService(
   List<SvPublishPort> ports,
   List<SvVolumeType> volumes,
   Set<SvContainerFlag> containerFlags,
-  Map<String, String> environmentVariables)
+  Map<String, String> environmentVariables,
+  List<String> containerArguments)
   implements SvServiceElementType
 {
   /**
@@ -64,6 +66,7 @@ public record SvService(
    * @param volumes              The volumes
    * @param containerFlags       The container flags
    * @param environmentVariables The environment variables
+   * @param containerArguments   The command-line arguments passed to the container entrypoint
    */
 
   public SvService
@@ -76,5 +79,6 @@ public record SvService(
     Objects.requireNonNull(volumes, "volumes");
     Objects.requireNonNull(containerFlags, "containerFlags");
     Objects.requireNonNull(environmentVariables, "environmentVariables");
+    Objects.requireNonNull(containerArguments, "containerArguments");
   }
 }
