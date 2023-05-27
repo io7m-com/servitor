@@ -264,6 +264,41 @@
     </complexType>
   </element>
 
+  <simpleType name="ContainerFlagType">
+    <annotation>
+      <documentation xml:lang="en">
+        The flags associated with a container.
+      </documentation>
+    </annotation>
+
+    <restriction base="string">
+      <enumeration value="READ_ONLY_ROOT">
+        <annotation>
+          <documentation xml:lang="en">
+            The container's root filesystem is read-only.
+          </documentation>
+        </annotation>
+      </enumeration>
+    </restriction>
+  </simpleType>
+
+  <element name="ContainerFlag">
+    <complexType>
+      <attribute name="Value"
+                 type="s:ContainerFlagType"
+                 use="required"/>
+    </complexType>
+  </element>
+
+  <element name="ContainerFlags">
+    <complexType>
+      <sequence minOccurs="1"
+                maxOccurs="unbounded">
+        <element ref="s:ContainerFlag"/>
+      </sequence>
+    </complexType>
+  </element>
+
   <simpleType name="VolumeFlagType">
     <annotation>
       <documentation xml:lang="en">
@@ -455,6 +490,37 @@
     </attribute>
   </complexType>
 
+  <element name="EnvironmentVariable">
+    <annotation>
+      <documentation xml:lang="en">
+        An environment variable.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="Name"
+                 type="string"
+                 use="required"/>
+      <attribute name="Value"
+                 type="string"
+                 use="required"/>
+    </complexType>
+  </element>
+
+  <element name="EnvironmentVariables">
+    <annotation>
+      <documentation xml:lang="en">
+        A set of environment variables.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <sequence minOccurs="1" maxOccurs="unbounded">
+        <element ref="s:EnvironmentVariable"/>
+      </sequence>
+    </complexType>
+  </element>
+
   <complexType name="ServiceType">
     <annotation>
       <documentation xml:lang="en">
@@ -475,6 +541,14 @@
           <sequence minOccurs="0"
                     maxOccurs="1">
             <element ref="s:Volumes"/>
+          </sequence>
+          <sequence minOccurs="0"
+                    maxOccurs="1">
+            <element ref="s:ContainerFlags"/>
+          </sequence>
+          <sequence minOccurs="0"
+                    maxOccurs="1">
+            <element ref="s:EnvironmentVariables"/>
           </sequence>
         </sequence>
       </extension>

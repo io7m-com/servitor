@@ -18,20 +18,24 @@
 package com.io7m.servitor.core;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * A service.
  *
- * @param name        The service name
- * @param description The description
- * @param id          The unique ID
- * @param image       The image
- * @param limits      The limits
- * @param runAs       The user/group to run as
- * @param ports       The published ports
- * @param volumes     The volumes
+ * @param name                 The service name
+ * @param description          The description
+ * @param id                   The unique ID
+ * @param image                The image
+ * @param limits               The limits
+ * @param runAs                The user/group to run as
+ * @param ports                The published ports
+ * @param volumes              The volumes
+ * @param containerFlags       The container flags
+ * @param environmentVariables The environment variables
  */
 
 public record SvService(
@@ -42,20 +46,24 @@ public record SvService(
   SvLimits limits,
   SvRunAs runAs,
   List<SvPublishPort> ports,
-  List<SvVolumeType> volumes)
+  List<SvVolumeType> volumes,
+  Set<SvContainerFlag> containerFlags,
+  Map<String, String> environmentVariables)
   implements SvServiceElementType
 {
   /**
    * A service.
    *
-   * @param name        The service name
-   * @param description The description
-   * @param id          The unique ID
-   * @param image       The image
-   * @param limits      The limits
-   * @param runAs       The user/group to run as
-   * @param ports       The published ports
-   * @param volumes     The volumes
+   * @param name                 The service name
+   * @param description          The description
+   * @param id                   The unique ID
+   * @param image                The image
+   * @param limits               The limits
+   * @param runAs                The user/group to run as
+   * @param ports                The published ports
+   * @param volumes              The volumes
+   * @param containerFlags       The container flags
+   * @param environmentVariables The environment variables
    */
 
   public SvService
@@ -66,5 +74,7 @@ public record SvService(
     Objects.requireNonNull(image, "image");
     Objects.requireNonNull(ports, "ports");
     Objects.requireNonNull(volumes, "volumes");
+    Objects.requireNonNull(containerFlags, "containerFlags");
+    Objects.requireNonNull(environmentVariables, "environmentVariables");
   }
 }

@@ -18,6 +18,7 @@
 package com.io7m.servitor.xml;
 
 import com.io7m.servitor.core.SvConfiguration;
+import com.io7m.servitor.core.SvContainerFlag;
 import com.io7m.servitor.core.SvException;
 import com.io7m.servitor.core.SvGroupMembership;
 import com.io7m.servitor.core.SvLimits;
@@ -35,6 +36,8 @@ import com.io7m.servitor.core.SvVolumeFlag;
 import com.io7m.servitor.core.SvVolumeType;
 import com.io7m.servitor.core.SvVolumeZFS;
 import com.io7m.servitor.xml.jaxb_v1.Configuration;
+import com.io7m.servitor.xml.jaxb_v1.ContainerFlags;
+import com.io7m.servitor.xml.jaxb_v1.EnvironmentVariables;
 import com.io7m.servitor.xml.jaxb_v1.Image;
 import com.io7m.servitor.xml.jaxb_v1.Limits;
 import com.io7m.servitor.xml.jaxb_v1.PublishPort;
@@ -263,7 +266,9 @@ public final class SvConfigurationFiles
       processLimits(service.getLimits()),
       processRunAs(service.getRunAs()),
       processPorts(service.getPublishPorts()),
-      processVolumes(service.getVolumes())
+      processVolumes(service.getVolumes()),
+      processContainerFlags(service.getContainerFlags()),
+      processEnvironmentVariables(service.getEnvironmentVariables())
     );
 
     graph.addVertex(result);
@@ -272,6 +277,34 @@ public final class SvConfigurationFiles
       graph.addEdge(group, result, new SvGroupMembership(group, result));
     }
     return result;
+  }
+
+  private static Map<String, String> processEnvironmentVariables(
+    final EnvironmentVariables environmentVariables)
+  {
+    if (environmentVariables == null) {
+      return Map.of();
+    }
+
+    final var results = new HashMap<String, String>();
+    for (final var env : environmentVariables.getEnvironmentVariable()) {
+      results.put(env.getName(), env.getValue());
+    }
+    return Map.copyOf(results);
+  }
+
+  private static Set<SvContainerFlag> processContainerFlags(
+    final ContainerFlags containerFlags)
+  {
+    if (containerFlags == null) {
+      return Set.of();
+    }
+
+    final var results = new HashSet<SvContainerFlag>();
+    for (final var flag : containerFlags.getContainerFlag()) {
+      results.add(SvContainerFlag.valueOf(flag.getValue().value()));
+    }
+    return Set.copyOf(results);
   }
 
   private static List<SvVolumeType> processVolumes(

@@ -115,6 +115,19 @@
         <VolumeFlag Flag="READ_WRITE"/>
       </VolumeZFS>
     </Volumes>
+
+    <ContainerFlags>
+      <ContainerFlag Value="READ_ONLY_ROOT"/>
+    </ContainerFlags>
+
+    <EnvironmentVariables>
+      <EnvironmentVariable Name="VAR0"
+                           Value="VAL0"/>
+      <EnvironmentVariable Name="VAR1"
+                           Value="VAL1"/>
+      <EnvironmentVariable Name="VAR2"
+                           Value="VAL2"/>
+    </EnvironmentVariables>
   </Service>
 
   <!--            -->

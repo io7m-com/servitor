@@ -45,6 +45,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.io7m.servitor.core.SvContainerFlag.READ_ONLY_ROOT;
+
 /**
  * Functions to generate {@code systemd} units.
  */
@@ -182,15 +184,39 @@ public final class SvUnitGeneration
     writer.println("ExecStart=/usr/bin/podman \\");
     writer.println("  run \\");
     writer.printf("  --name %s \\%n", serviceName);
-    writer.println("  --read-only \\");
+
+    if (service.containerFlags().contains(READ_ONLY_ROOT)) {
+      writer.println("  --read-only \\");
+    }
+
     writer.println("  --rm \\");
     writer.println("  --replace \\");
 
+    writeEnvironmentVariables(writer, service.environmentVariables());
     writeLimits(writer, service.limits());
     writeVolumes(writer, service.volumes());
     writePorts(writer, service.ports());
     writeImage(writer, service.image());
     writer.println();
+  }
+
+  private static void writeEnvironmentVariables(
+    final PrintWriter writer,
+    final Map<String, String> variables)
+  {
+    final var sorted =
+      variables.keySet()
+        .stream()
+        .sorted()
+        .toList();
+
+    for (final var name : sorted) {
+      writer.printf(
+        "  --env '%s=%s' \\%n",
+        name,
+        variables.get(name)
+      );
+    }
   }
 
   private static void writeExecStop(
