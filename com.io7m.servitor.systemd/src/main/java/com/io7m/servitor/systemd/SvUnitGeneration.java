@@ -146,6 +146,7 @@ public final class SvUnitGeneration
         "Description=%s (%s)%n",
         service.description(),
         service.image().tag());
+      writer.println("Wants=network-online.target");
 
       final var parentOpt = parentOf(configuration, service);
       if (parentOpt.isPresent()) {
@@ -153,8 +154,9 @@ public final class SvUnitGeneration
         final String parentName = nameFor(configuration, parent);
         writer.printf("PartOf=%s.service%n", parentName);
         writer.printf("After=%s.service%n", parentName);
+      } else {
+        writer.println("After=network-online.target");
       }
-
       writer.println();
 
       writer.println("[Service]");
