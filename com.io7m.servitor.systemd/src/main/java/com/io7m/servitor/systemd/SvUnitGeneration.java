@@ -393,7 +393,7 @@ public final class SvUnitGeneration
         );
 
       writer.printf(
-        "  --volume %s:%s:%s \\%n",
+        "  --volume '%s:%s:%s' \\%n",
         volume.hostPath().toAbsolutePath(),
         volume.mountedAt().toAbsolutePath(),
         flagText
