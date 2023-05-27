@@ -19,7 +19,7 @@
             Memory="x4000000000"/>
 
     <PublishPorts>
-      <PublishPort Host="packages03.int.arc7.info"
+      <PublishPort Host="www.example.com"
                    PortInternal="x8081"
                    PortExternal="x8081"
                    Family="xIPv6"

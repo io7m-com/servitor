@@ -19,7 +19,7 @@
             Memory="4000000000"/>
 
     <PublishPorts>
-      <PublishPort Host="packages03.int.arc7.info"
+      <PublishPort Host="www.example.com"
                    PortInternal="8081"
                    PortExternal="8081"
                    Family="IPv6"
@@ -55,7 +55,7 @@
             Memory="2000000000"/>
 
     <PublishPorts>
-      <PublishPort Host="jenkins03.int.arc7.info"
+      <PublishPort Host="www.example.com"
                    PortInternal="8080"
                    PortExternal="8080"
                    Family="IPv6"
@@ -139,7 +139,7 @@
               Memory="512000000"/>
 
       <PublishPorts>
-        <PublishPort Host="grafana01.int.arc7.info"
+        <PublishPort Host="www.example.com"
                      PortInternal="3000"
                      PortExternal="3000"
                      Family="IPv6"
@@ -184,17 +184,17 @@
               Memory="512000000"/>
 
       <PublishPorts>
-        <PublishPort Host="grafana01.int.arc7.info"
+        <PublishPort Host="www.example.com"
                      PortInternal="4317"
                      PortExternal="4317"
                      Family="IPv6"
                      Type="TCP"/>
-        <PublishPort Host="grafana01.int.arc7.info"
+        <PublishPort Host="www.example.com"
                      PortInternal="4318"
                      PortExternal="4318"
                      Family="IPv6"
                      Type="TCP"/>
-        <PublishPort Host="grafana01.int.arc7.info"
+        <PublishPort Host="www.example.com"
                      PortInternal="3200"
                      PortExternal="3200"
                      Family="IPv6"
