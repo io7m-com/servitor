@@ -83,7 +83,7 @@ public final class SvConfigurationsTest
         .filter(v -> g.inDegreeOf(v) == 0)
         .toList();
 
-    assertEquals(4, roots.size());
+    assertEquals(5, roots.size());
     assertTrue(
       roots.stream()
         .anyMatch(s -> Objects.equals(
@@ -107,6 +107,12 @@ public final class SvConfigurationsTest
         .anyMatch(s -> Objects.equals(
           s.id(),
           UUID.fromString("0490e76a-2b48-4533-883a-03c461d9a0d3")))
+    );
+    assertTrue(
+      roots.stream()
+        .anyMatch(s -> Objects.equals(
+          s.id(),
+          UUID.fromString("0292dda0-9052-4dc8-ba8a-fbd3ab2c78f7")))
     );
   }
 

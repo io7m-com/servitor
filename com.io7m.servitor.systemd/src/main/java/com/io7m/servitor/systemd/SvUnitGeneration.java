@@ -410,17 +410,18 @@ public final class SvUnitGeneration
     final var graph =
       configuration.graph();
 
-    var serviceNow = service;
-    while (true) {
-      segments.addFirst(serviceNow.name().value());
-      final var incoming = List.copyOf(graph.incomingEdgesOf(serviceNow));
-      if (incoming.isEmpty()) {
-        break;
-      }
-      serviceNow = incoming.get(0).group();
+    final var incoming =
+      List.copyOf(graph.incomingEdgesOf(service));
+    final String rawName =
+      service.name().value();
+
+    if (incoming.isEmpty()) {
+      return rawName;
     }
 
-    return String.join(".", segments);
+    return "%s.%s".formatted(nameFor(
+      configuration,
+      incoming.get(0).group()), rawName);
   }
 
   private static SvUnit generateOneGroup(

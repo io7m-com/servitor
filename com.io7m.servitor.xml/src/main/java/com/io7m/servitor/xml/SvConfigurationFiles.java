@@ -229,23 +229,20 @@ public final class SvConfigurationFiles
 
     graph.addVertex(group);
     groupStack.push(group);
+    results.put(group.id(), group);
 
     try {
       final var services = service.getServiceOrServiceGroup();
       for (final var object : services) {
+        final SvServiceElementType result;
         if (object instanceof final ServiceType subService) {
-          final var result =
-            processService(graph, groupStack, results, subService);
-          results.put(result.id(), result);
-          continue;
+          result = processService(graph, groupStack, results, subService);
+        } else if (object instanceof final ServiceGroupType subService) {
+          result = processServiceGroup(graph, groupStack, results, subService);
+        } else {
+          throw new IllegalStateException();
         }
-        if (object instanceof final ServiceGroupType subService) {
-          final var result =
-            processServiceGroup(graph, groupStack, results, subService);
-          graph.addVertex(result);
-          results.put(result.id(), result);
-          continue;
-        }
+        graph.addEdge(group, result, new SvGroupMembership(group, result));
       }
     } finally {
       groupStack.pop();
@@ -274,6 +271,8 @@ public final class SvConfigurationFiles
     );
 
     graph.addVertex(result);
+    results.put(result.id(), result);
+
     if (!groupStack.isEmpty()) {
       final var group = groupStack.peek();
       graph.addEdge(group, result, new SvGroupMembership(group, result));

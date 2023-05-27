@@ -253,4 +253,64 @@
     </Service>
   </ServiceGroup>
 
+  <!--            -->
+  <!-- Cardant 01 -->
+  <!--            -->
+
+  <ServiceGroup Name="cardant01"
+                Description="Cardant Service 01"
+                ID="0292dda0-9052-4dc8-ba8a-fbd3ab2c78f7">
+
+    <!-- Cardant's idstore server. -->
+    <ServiceGroup Name="idstore"
+                  Description="Cardant Idstore Service Group"
+                  ID="e6ee4e81-2800-48d5-a7db-d34b91fec6f1">
+
+      <!-- idstore database -->
+      <Service Name="db01"
+               Description="Cardant Idstore Postgres Database"
+               ID="02fd639b-18e4-4cba-9a2e-603f3764539d">
+
+        <ContainerFlags>
+          <ContainerFlag Value="READ_ONLY_ROOT"/>
+          <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
+        </ContainerFlags>
+
+        <EnvironmentVariables>
+          <EnvironmentVariable Name="POSTGRES_USER"
+                               Value="idstore"/>
+          <EnvironmentVariable Name="POSTGRES_DB"
+                               Value="idstore"/>
+        </EnvironmentVariables>
+
+        <Image Registry="registry.int.arc7.info:5000"
+               Name="postgres"
+               Tag="15.2"
+               Hash="sha256:98d432a8179396af30b959954520d8d23138d631495679446f3147380f6257c7"/>
+
+        <Limits CPU="1.0"
+                Memory="1000000000"/>
+
+        <PublishPorts>
+          <PublishPort Host="www.example.com"
+                       PortInternal="5432"
+                       PortExternal="5432"
+                       Type="TCP"
+                       Family="IPv6"/>
+        </PublishPorts>
+
+        <RunAs User="_idstore_db"
+               Group="_idstore_db"/>
+
+        <Volumes>
+          <VolumeZFS HostPath="/storage/containers/cardant01/idstore/db01"
+                     MountPath="/var/lib/postgresql/data">
+            <VolumeFlag Flag="READ_WRITE"/>
+            <VolumeFlag Flag="RELABEL_PRIVATE"/>
+          </VolumeZFS>
+        </Volumes>
+      </Service>
+    </ServiceGroup>
+  </ServiceGroup>
+
 </Configuration>
