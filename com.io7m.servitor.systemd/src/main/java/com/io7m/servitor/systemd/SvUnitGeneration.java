@@ -83,13 +83,13 @@ public final class SvUnitGeneration
       new DepthFirstIterator<>(configuration.graph());
 
     while (iterator.hasNext()) {
-      results.add(generateOne(configuration, iterator.next()));
+      results.addAll(generateOne(configuration, iterator.next()));
     }
 
     return List.copyOf(results);
   }
 
-  private static SvUnit generateOne(
+  private static List<SvUnit> generateOne(
     final SvConfiguration configuration,
     final SvServiceElementType element)
     throws SvException
@@ -123,7 +123,7 @@ public final class SvUnitGeneration
     return Optional.of(incoming.get(0).group());
   }
 
-  private static SvUnit generateOneService(
+  private static List<SvUnit> generateOneService(
     final SvConfiguration configuration,
     final SvService service)
     throws SvException
@@ -160,6 +160,9 @@ public final class SvUnitGeneration
       writer.println();
 
       writer.println("[Service]");
+      findSliceOf(configuration, service)
+        .ifPresent(slice -> writer.printf("Slice=%s%n", slice));
+
       writer.println("Type=exec");
       writeRunAs(writer, service.runAs());
       writer.println("Restart=on-failure");
@@ -173,11 +176,20 @@ public final class SvUnitGeneration
       writeExecStopPost(writer, serviceName);
     }
 
-    return new SvUnit(
+    return List.of(new SvUnit(
       service,
       "%s.service".formatted(serviceName),
       stringWriter.toString()
-    );
+    ));
+  }
+
+  private static Optional<String> findSliceOf(
+    final SvConfiguration configuration,
+    final SvServiceElementType service)
+  {
+    return parentOf(configuration, service)
+      .map(g -> nameFor(configuration, g))
+      .map("%s.slice"::formatted);
   }
 
   private static void writeExecStart(
@@ -405,11 +417,8 @@ public final class SvUnitGeneration
     final SvConfiguration configuration,
     final SvServiceElementType service)
   {
-    final var segments =
-      new LinkedList<String>();
     final var graph =
       configuration.graph();
-
     final var incoming =
       List.copyOf(graph.incomingEdgesOf(service));
     final String rawName =
@@ -419,18 +428,54 @@ public final class SvUnitGeneration
       return rawName;
     }
 
-    return "%s.%s".formatted(nameFor(
-      configuration,
-      incoming.get(0).group()), rawName);
+    return "%s.%s".formatted(
+      nameFor(configuration, incoming.get(0).group()),
+      rawName
+    );
   }
 
-  private static SvUnit generateOneGroup(
+  private static List<SvUnit> generateOneGroup(
     final SvConfiguration configuration,
     final SvServiceGroup group)
   {
     final var serviceName =
       nameFor(configuration, group);
 
+    final var results = new LinkedList<SvUnit>();
+    results.add(generateOneGroupServiceUnit(configuration, group, serviceName));
+    results.add(generateOneGroupServiceSlice(group, serviceName));
+    return results;
+  }
+
+  private static SvUnit generateOneGroupServiceSlice(
+    final SvServiceGroup group,
+    final String serviceName)
+  {
+    final var stringWriter = new StringWriter();
+    try (var writer = new PrintWriter(stringWriter)) {
+      writer.println("#");
+      writer.println("#  Automatically generated; do not edit.");
+      writer.printf("#  $ServiceID: %s%n", group.id());
+      writer.println("#");
+      writer.println();
+
+      writer.println("[Unit]");
+      writer.printf("Description=%s (Slice)%n", group.description());
+      writer.println();
+    }
+
+    return new SvUnit(
+      group,
+      "%s.slice".formatted(serviceName),
+      stringWriter.toString()
+    );
+  }
+
+  private static SvUnit generateOneGroupServiceUnit(
+    final SvConfiguration configuration,
+    final SvServiceGroup group,
+    final String serviceName)
+  {
     final var stringWriter = new StringWriter();
     try (var writer = new PrintWriter(stringWriter)) {
       writer.println("#");

@@ -66,6 +66,8 @@ public final class SvUnitGenerationTest
       SvUnitGeneration.generate(configuration);
 
     for (final var unit : units) {
+      LOG.debug("{}:{}", unit.fileName(), unit.fileText());
+
       try (var reader = new StringReader(unit.fileText())) {
         final var config =
           INIConfiguration.builder()
