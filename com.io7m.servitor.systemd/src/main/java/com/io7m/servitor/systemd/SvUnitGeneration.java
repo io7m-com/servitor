@@ -16,6 +16,7 @@
 
 package com.io7m.servitor.systemd;
 
+import com.io7m.jaffirm.core.Postconditions;
 import com.io7m.servitor.core.SvConfiguration;
 import com.io7m.servitor.core.SvException;
 import com.io7m.servitor.core.SvLimits;
@@ -151,7 +152,7 @@ public final class SvUnitGeneration
       final var parentOpt = parentOf(configuration, service);
       if (parentOpt.isPresent()) {
         final var parent = parentOpt.get();
-        final String parentName = nameFor(configuration, parent);
+        final var parentName = nameFor(configuration, parent);
         writer.printf("PartOf=%s.service%n", parentName);
         writer.printf("After=%s.service%n", parentName);
       } else {
@@ -160,9 +161,7 @@ public final class SvUnitGeneration
       writer.println();
 
       writer.println("[Service]");
-      findSliceOf(configuration, service)
-        .ifPresent(slice -> writer.printf("Slice=%s%n", slice));
-
+      writer.printf("Slice=%s.slice%n", sliceNameOf(configuration, service));
       writer.println("Type=exec");
       writeRunAs(writer, service.runAs());
       writer.println("Restart=on-failure");
@@ -183,13 +182,33 @@ public final class SvUnitGeneration
     ));
   }
 
-  private static Optional<String> findSliceOf(
+  private static String sliceNameOf(
     final SvConfiguration configuration,
     final SvServiceElementType service)
   {
-    return parentOf(configuration, service)
-      .map(g -> nameFor(configuration, g))
-      .map("%s.slice"::formatted);
+    final var graph =
+      configuration.graph();
+    final var incoming =
+      List.copyOf(graph.incomingEdgesOf(service));
+    final var rawName =
+      service.name().value();
+
+    if (incoming.isEmpty()) {
+      return "services-" + rawName;
+    }
+
+    final var result =
+      "%s-%s".formatted(
+        sliceNameOf(configuration, incoming.get(0).group()),
+        rawName
+      );
+
+    Postconditions.checkPostcondition(
+      result,
+      result.startsWith("services-"),
+      s -> "Result must start with 'services-'"
+    );
+    return result;
   }
 
   private static void writeExecStart(
@@ -421,7 +440,7 @@ public final class SvUnitGeneration
       configuration.graph();
     final var incoming =
       List.copyOf(graph.incomingEdgesOf(service));
-    final String rawName =
+    final var rawName =
       service.name().value();
 
     if (incoming.isEmpty()) {
@@ -491,6 +510,7 @@ public final class SvUnitGeneration
       writer.println();
 
       writer.println("[Service]");
+      writer.printf("Slice=%s.slice%n", sliceNameOf(configuration, group));
       writer.println("Type=oneshot");
       writer.println("ExecStart=/bin/true");
       writer.println("RemainAfterExit=yes");

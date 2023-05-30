@@ -23,8 +23,9 @@ module com.io7m.servitor.systemd
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
-  requires org.apache.commons.text;
+  requires com.io7m.jaffirm.core;
   requires com.io7m.servitor.core;
+  requires org.apache.commons.text;
 
   exports com.io7m.servitor.systemd;
 }

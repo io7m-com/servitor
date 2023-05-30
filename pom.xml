@@ -120,6 +120,11 @@
         <artifactId>commons-text</artifactId>
         <version>1.10.0</version>
       </dependency>
+      <dependency>
+        <groupId>com.io7m.jaffirm</groupId>
+        <artifactId>com.io7m.jaffirm.core</artifactId>
+        <version>4.0.0</version>
+      </dependency>
 
       <!-- CLI -->
       <dependency>

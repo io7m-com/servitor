@@ -34,7 +34,7 @@
     </annotation>
 
     <restriction base="string">
-      <pattern value="[a-z][a-z0-9_\\-]{0,63}"/>
+      <pattern value="[a-z][a-z0-9_]{0,63}"/>
     </restriction>
   </simpleType>
 
