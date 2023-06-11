@@ -22,6 +22,8 @@
     <Limits CPU="1.0"
             Memory="4000000000"/>
 
+    <OutboundAddress IPv6Address="www.example.com"/>
+
     <PublishPorts>
       <PublishPort Host="www.example.com"
                    PortInternal="8081"
@@ -61,6 +63,8 @@
 
     <Limits CPU="2.0"
             Memory="2000000000"/>
+
+    <OutboundAddress IPv6Address="www.example.com"/>
 
     <PublishPorts>
       <PublishPort Host="www.example.com"
@@ -115,6 +119,8 @@
     <Limits CPU="1.0"
             Memory="128000000"/>
 
+    <OutboundAddress IPv6Address="www.example.com"/>
+
     <RunAs User="_gtyrell"
            Group="_gtyrell"/>
 
@@ -167,6 +173,8 @@
       <Limits CPU="1.0"
               Memory="512000000"/>
 
+      <OutboundAddress IPv6Address="www.example.com"/>
+
       <PublishPorts>
         <PublishPort Host="www.example.com"
                      PortInternal="3000"
@@ -215,6 +223,8 @@
 
       <Limits CPU="1.0"
               Memory="512000000"/>
+
+      <OutboundAddress IPv6Address="www.example.com"/>
 
       <PublishPorts>
         <PublishPort Host="www.example.com"
@@ -290,6 +300,8 @@
 
         <Limits CPU="1.0"
                 Memory="1000000000"/>
+
+        <OutboundAddress IPv6Address="www.example.com" IPv4Address="www.example.com"/>
 
         <PublishPorts>
           <PublishPort Host="www.example.com"

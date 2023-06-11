@@ -21,6 +21,7 @@ import com.io7m.servitor.core.SvConfiguration;
 import com.io7m.servitor.core.SvException;
 import com.io7m.servitor.core.SvLimits;
 import com.io7m.servitor.core.SvOCIImage;
+import com.io7m.servitor.core.SvOutboundAddress;
 import com.io7m.servitor.core.SvPublishPort;
 import com.io7m.servitor.core.SvRunAs;
 import com.io7m.servitor.core.SvService;
@@ -234,10 +235,38 @@ public final class SvUnitGeneration
     writeEnvironmentVariables(writer, service.environmentVariables());
     writeLimits(writer, service.limits());
     writeVolumes(writer, service.volumes());
+    writeOutboundAddress(writer, service.outboundAddress());
     writePorts(writer, service.ports());
     writeImage(writer, service.image());
     writeArguments(writer, service.containerArguments());
     writer.println();
+  }
+
+  private static void writeOutboundAddress(
+    final PrintWriter writer,
+    final SvOutboundAddress outbound)
+    throws SvException
+  {
+    final var inet6 =
+      lookupIPv6(outbound.ipv6Address());
+
+    Optional<Inet4Address> inet4 = Optional.empty();
+    final var text = outbound.ipv4Address();
+    if (text.isPresent()) {
+      inet4 = Optional.of(lookupIPv4(text.get()));
+    }
+
+    writer.printf(
+      "  --network='slirp4netns:outbound_addr6=%s",
+      inet6.getHostAddress()
+    );
+    inet4.ifPresent(i4 -> {
+      writer.printf(
+        ",outbound_addr=%s",
+        i4.getHostAddress()
+      );
+    });
+    writer.printf("' \\%n");
   }
 
   private static void writeArguments(
@@ -331,24 +360,72 @@ public final class SvUnitGeneration
     }
   }
 
-  private static String formatAddress(
-    final SvPublishPort port)
+  private static Inet4Address lookupIPv4(
+    final String name)
+    throws SvException
+  {
+    return Arrays.stream(lookupAll(name))
+      .filter(a -> a instanceof Inet4Address)
+      .map(Inet4Address.class::cast)
+      .findFirst()
+      .orElseThrow(() -> {
+        return new SvException(
+          "No IPv4 address could be resolved for the host.",
+          "error-dns",
+          Map.ofEntries(
+            Map.entry("Host", name)
+          ),
+          Optional.empty()
+        );
+      });
+  }
+
+  private static InetAddress[] lookupAll(
+    final String name)
     throws SvException
   {
     final InetAddress[] addresses;
     try {
-      addresses = InetAddress.getAllByName(port.host());
+      addresses = InetAddress.getAllByName(name);
     } catch (final UnknownHostException e) {
       throw new SvException(
         "Unknown host.",
         e,
         "error-dns",
         Map.ofEntries(
-          Map.entry("Host", port.host())
+          Map.entry("Host", name)
         ),
         Optional.empty()
       );
     }
+    return addresses;
+  }
+
+  private static Inet6Address lookupIPv6(
+    final String name)
+    throws SvException
+  {
+    return Arrays.stream(lookupAll(name))
+      .filter(a -> a instanceof Inet6Address)
+      .map(Inet6Address.class::cast)
+      .findFirst()
+      .orElseThrow(() -> {
+        return new SvException(
+          "No IPv6 address could be resolved for the host.",
+          "error-dns",
+          Map.ofEntries(
+            Map.entry("Host", name)
+          ),
+          Optional.empty()
+        );
+      });
+  }
+
+  private static String formatAddress(
+    final SvPublishPort port)
+    throws SvException
+  {
+    final var addresses = lookupAll(port.host());
 
     return switch (port.family()) {
       case IPV4 -> {

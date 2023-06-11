@@ -23,6 +23,7 @@ import com.io7m.servitor.core.SvException;
 import com.io7m.servitor.core.SvGroupMembership;
 import com.io7m.servitor.core.SvLimits;
 import com.io7m.servitor.core.SvOCIImage;
+import com.io7m.servitor.core.SvOutboundAddress;
 import com.io7m.servitor.core.SvPortFamily;
 import com.io7m.servitor.core.SvPortType;
 import com.io7m.servitor.core.SvPublishPort;
@@ -41,6 +42,7 @@ import com.io7m.servitor.xml.jaxb_v1.ContainerFlags;
 import com.io7m.servitor.xml.jaxb_v1.EnvironmentVariables;
 import com.io7m.servitor.xml.jaxb_v1.Image;
 import com.io7m.servitor.xml.jaxb_v1.Limits;
+import com.io7m.servitor.xml.jaxb_v1.OutboundAddress;
 import com.io7m.servitor.xml.jaxb_v1.PublishPort;
 import com.io7m.servitor.xml.jaxb_v1.PublishPorts;
 import com.io7m.servitor.xml.jaxb_v1.RunAs;
@@ -267,7 +269,8 @@ public final class SvConfigurationFiles
       processVolumes(service.getVolumes()),
       processContainerFlags(service.getContainerFlags()),
       processEnvironmentVariables(service.getEnvironmentVariables()),
-      processContainerArguments(service.getContainerArguments())
+      processContainerArguments(service.getContainerArguments()),
+      processOutboundAddress(service.getOutboundAddress())
     );
 
     graph.addVertex(result);
@@ -278,6 +281,15 @@ public final class SvConfigurationFiles
       graph.addEdge(group, result, new SvGroupMembership(group, result));
     }
     return result;
+  }
+
+  private static SvOutboundAddress processOutboundAddress(
+    final OutboundAddress outboundAddress)
+  {
+    return new SvOutboundAddress(
+      outboundAddress.getIPv6Address(),
+      Optional.ofNullable(outboundAddress.getIPv4Address())
+    );
   }
 
   private static List<String> processContainerArguments(
