@@ -33,7 +33,7 @@
   <properties>
     <io7m.api.previousVersion>0.0.1-SNAPSHOT</io7m.api.previousVersion>
     <junit.version>5.9.3</junit.version>
-    <com.io7m.quarrel.version>1.0.0-beta0001</com.io7m.quarrel.version>
+    <com.io7m.quarrel.version>1.2.0</com.io7m.quarrel.version>
   </properties>
 
   <licenses>
@@ -98,12 +98,12 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.4.7</version>
+        <version>1.4.8</version>
       </dependency>
       <dependency>
         <groupId>com.io7m.seltzer</groupId>
         <artifactId>com.io7m.seltzer.api</artifactId>
-        <version>0.0.1</version>
+        <version>1.0.0</version>
       </dependency>
       <dependency>
         <groupId>org.jgrapht</groupId>
@@ -152,7 +152,7 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>5.3.1</version>
+        <version>5.4.0</version>
       </dependency>
 
       <!-- Jakarta XML -->
@@ -164,7 +164,7 @@
       <dependency>
         <groupId>com.sun.xml.bind</groupId>
         <artifactId>jaxb-impl</artifactId>
-        <version>4.0.2</version>
+        <version>4.0.3</version>
       </dependency>
       <dependency>
         <groupId>jakarta.activation</groupId>
