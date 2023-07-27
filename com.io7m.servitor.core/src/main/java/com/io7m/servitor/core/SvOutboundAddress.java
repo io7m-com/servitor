@@ -25,22 +25,26 @@ import java.util.Optional;
  *
  * @param ipv4Address The IPv4 host
  * @param ipv6Address The IPv6 host
+ * @param mtu         The optional MTU size
  */
 
 public record SvOutboundAddress(
   String ipv6Address,
-  Optional<String> ipv4Address)
+  Optional<String> ipv4Address,
+  Optional<Integer> mtu)
 {
   /**
    * The outbound address of a container.
    *
    * @param ipv4Address The IPv4 host
    * @param ipv6Address The IPv6 host
+   * @param mtu         The optional MTU size
    */
 
   public SvOutboundAddress
   {
     Objects.requireNonNull(ipv4Address, "ipv4Address");
     Objects.requireNonNull(ipv6Address, "ipv6Address");
+    Objects.requireNonNull(mtu, "mtu");
   }
 }

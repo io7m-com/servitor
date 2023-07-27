@@ -569,6 +569,9 @@
     </annotation>
 
     <complexType>
+      <attribute name="MTU"
+                 type="unsignedInt"
+                 use="optional"/>
       <attribute name="IPv6Address"
                  type="string"
                  use="required"/>

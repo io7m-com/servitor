@@ -266,6 +266,12 @@ public final class SvUnitGeneration
         i4.getHostAddress()
       );
     });
+    outbound.mtu().ifPresent(mtuValue -> {
+      writer.printf(
+        ",mtu=%s",
+        mtuValue
+      );
+    });
     writer.printf("' \\%n");
   }
 

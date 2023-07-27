@@ -288,7 +288,9 @@ public final class SvConfigurationFiles
   {
     return new SvOutboundAddress(
       outboundAddress.getIPv6Address(),
-      Optional.ofNullable(outboundAddress.getIPv4Address())
+      Optional.ofNullable(outboundAddress.getIPv4Address()),
+      Optional.ofNullable(outboundAddress.getMTU())
+        .map(x -> Integer.valueOf(x.intValue()))
     );
   }
 
