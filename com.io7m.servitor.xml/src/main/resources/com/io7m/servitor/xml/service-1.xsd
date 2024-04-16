@@ -327,6 +327,84 @@
     </complexType>
   </element>
 
+  <element name="DevicePassthrough">
+    <annotation>
+      <documentation xml:lang="en">
+        A device passed to the container from the host system.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <attribute name="HostDevice"
+                 use="required"
+                 type="string">
+        <annotation>
+          <documentation xml:lang="en">
+            The host device path (such as "/dev/ttyS0").
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="ContainerDevice"
+                 use="required"
+                 type="string">
+        <annotation>
+          <documentation xml:lang="en">
+            The container device path (such as "/dev/ttyS0").
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Read"
+                 use="optional"
+                 type="boolean"
+                 default="false">
+        <annotation>
+          <documentation xml:lang="en">
+            Whether read access to the device is allowed.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Write"
+                 use="optional"
+                 type="boolean"
+                 default="false">
+        <annotation>
+          <documentation xml:lang="en">
+            Whether write access to the device is allowed.
+          </documentation>
+        </annotation>
+      </attribute>
+
+      <attribute name="Mknod"
+                 use="optional"
+                 type="boolean"
+                 default="false">
+        <annotation>
+          <documentation xml:lang="en">
+            Whether mknod(2) access to the device is allowed.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name="DevicePassthroughs">
+    <annotation>
+      <documentation xml:lang="en">
+        The devices passed to the container from the host system.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <sequence minOccurs="1"
+                maxOccurs="unbounded">
+        <element ref="s:DevicePassthrough"/>
+      </sequence>
+    </complexType>
+  </element>
+
   <simpleType name="VolumeFlagType">
     <annotation>
       <documentation xml:lang="en">
@@ -599,6 +677,11 @@
           <sequence minOccurs="0"
                     maxOccurs="1">
             <element ref="s:ContainerFlags"/>
+          </sequence>
+
+          <sequence minOccurs="0"
+                    maxOccurs="1">
+            <element ref="s:DevicePassthroughs"/>
           </sequence>
 
           <sequence minOccurs="0"

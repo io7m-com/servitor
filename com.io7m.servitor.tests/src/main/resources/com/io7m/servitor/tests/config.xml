@@ -56,6 +56,13 @@
       <ContainerFlag Value="REMAP_USER_TO_CONTAINER_ROOT"/>
     </ContainerFlags>
 
+    <DevicePassthroughs>
+      <DevicePassthrough HostDevice="/dev/ttyS0"
+                         ContainerDevice="/dev/ttyS0"
+                         Write="true"
+                         Read="true"/>
+    </DevicePassthroughs>
+
     <Image Registry="registry.int.arc7.info:5000"
            Name="jenkins"
            Tag="2.387.3-lts-jdk11"
@@ -301,7 +308,8 @@
         <Limits CPU="1.0"
                 Memory="1000000000"/>
 
-        <OutboundAddress IPv6Address="www.example.com" IPv4Address="www.example.com"/>
+        <OutboundAddress IPv6Address="www.example.com"
+                         IPv4Address="www.example.com"/>
 
         <PublishPorts>
           <PublishPort Host="www.example.com"

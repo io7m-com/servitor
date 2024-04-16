@@ -38,6 +38,7 @@ import java.util.UUID;
  * @param environmentVariables The environment variables
  * @param containerArguments   The command-line arguments passed to the container entrypoint
  * @param outboundAddress      The outbound address
+ * @param devicePassthroughs   The device passthroughs
  */
 
 public record SvService(
@@ -52,7 +53,8 @@ public record SvService(
   Set<SvContainerFlag> containerFlags,
   Map<String, String> environmentVariables,
   List<String> containerArguments,
-  SvOutboundAddress outboundAddress)
+  SvOutboundAddress outboundAddress,
+  List<SvDevicePassthrough> devicePassthroughs)
   implements SvServiceElementType
 {
   /**
@@ -70,6 +72,7 @@ public record SvService(
    * @param environmentVariables The environment variables
    * @param containerArguments   The command-line arguments passed to the container entrypoint
    * @param outboundAddress      The outbound address
+   * @param devicePassthroughs   The device passthroughs
    */
 
   public SvService
@@ -78,11 +81,13 @@ public record SvService(
     Objects.requireNonNull(description, "description");
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(image, "image");
-    Objects.requireNonNull(ports, "ports");
-    Objects.requireNonNull(volumes, "volumes");
-    Objects.requireNonNull(containerFlags, "containerFlags");
-    Objects.requireNonNull(environmentVariables, "environmentVariables");
-    Objects.requireNonNull(containerArguments, "containerArguments");
     Objects.requireNonNull(outboundAddress, "outboundAddress");
+
+    ports = List.copyOf(ports);
+    volumes = List.copyOf(volumes);
+    containerFlags = Set.copyOf(containerFlags);
+    environmentVariables = Map.copyOf(environmentVariables);
+    containerArguments = List.copyOf(containerArguments);
+    devicePassthroughs = List.copyOf(devicePassthroughs);
   }
 }

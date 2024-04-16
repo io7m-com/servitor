@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,8 +14,30 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.servitor.core;
+
 /**
- * Static podman/systemd service orchestrator (Tests)
+ * The device permission.
  */
 
-package com.io7m.servitor.tests;
+public enum SvDevicePermission
+{
+  /**
+   * The device can be read.
+   */
+
+  READ,
+
+  /**
+   * The device can be written.
+   */
+
+  WRITE,
+
+  /**
+   * The device can be affected with mknod(2).
+   */
+
+  MKNOD
+}

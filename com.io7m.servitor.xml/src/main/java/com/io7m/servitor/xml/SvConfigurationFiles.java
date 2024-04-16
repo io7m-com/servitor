@@ -19,6 +19,8 @@ package com.io7m.servitor.xml;
 
 import com.io7m.servitor.core.SvConfiguration;
 import com.io7m.servitor.core.SvContainerFlag;
+import com.io7m.servitor.core.SvDevicePassthrough;
+import com.io7m.servitor.core.SvDevicePermission;
 import com.io7m.servitor.core.SvException;
 import com.io7m.servitor.core.SvGroupMembership;
 import com.io7m.servitor.core.SvLimits;
@@ -39,6 +41,8 @@ import com.io7m.servitor.core.SvVolumeZFS;
 import com.io7m.servitor.xml.jaxb_v1.Configuration;
 import com.io7m.servitor.xml.jaxb_v1.ContainerArguments;
 import com.io7m.servitor.xml.jaxb_v1.ContainerFlags;
+import com.io7m.servitor.xml.jaxb_v1.DevicePassthrough;
+import com.io7m.servitor.xml.jaxb_v1.DevicePassthroughs;
 import com.io7m.servitor.xml.jaxb_v1.EnvironmentVariables;
 import com.io7m.servitor.xml.jaxb_v1.Image;
 import com.io7m.servitor.xml.jaxb_v1.Limits;
@@ -270,7 +274,8 @@ public final class SvConfigurationFiles
       processContainerFlags(service.getContainerFlags()),
       processEnvironmentVariables(service.getEnvironmentVariables()),
       processContainerArguments(service.getContainerArguments()),
-      processOutboundAddress(service.getOutboundAddress())
+      processOutboundAddress(service.getOutboundAddress()),
+      processDevicePassthroughs(service.getDevicePassthroughs())
     );
 
     graph.addVertex(result);
@@ -281,6 +286,41 @@ public final class SvConfigurationFiles
       graph.addEdge(group, result, new SvGroupMembership(group, result));
     }
     return result;
+  }
+
+  private static List<SvDevicePassthrough> processDevicePassthroughs(
+    final DevicePassthroughs devicePassthroughs)
+  {
+    if (devicePassthroughs == null) {
+      return List.of();
+    }
+
+    final var results = new ArrayList<SvDevicePassthrough>();
+    for (final var argument : devicePassthroughs.getDevicePassthrough()) {
+      results.add(processDevicePassthrough(argument));
+    }
+    return List.copyOf(results);
+  }
+
+  private static SvDevicePassthrough processDevicePassthrough(
+    final DevicePassthrough argument)
+  {
+    final var permissions = new HashSet<SvDevicePermission>();
+    if (argument.isWrite()) {
+      permissions.add(SvDevicePermission.WRITE);
+    }
+    if (argument.isRead()) {
+      permissions.add(SvDevicePermission.READ);
+    }
+    if (argument.isMknod()) {
+      permissions.add(SvDevicePermission.MKNOD);
+    }
+
+    return new SvDevicePassthrough(
+      Paths.get(argument.getHostDevice()),
+      Paths.get(argument.getContainerDevice()),
+      permissions
+    );
   }
 
   private static SvOutboundAddress processOutboundAddress(

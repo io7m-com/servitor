@@ -19,8 +19,9 @@
   <url>https://www.io7m.com/software/servitor/</url>
 
   <properties>
-    <com.io7m.oci.versionAlpine>3.17.3</com.io7m.oci.versionAlpine>
-    <com.io7m.oci.versionTemurin>17.0.7_7-jre-alpine</com.io7m.oci.versionTemurin>
+    <com.io7m.oci.registry>quay.io/io7mcom</com.io7m.oci.registry>
+    <com.io7m.oci.versionAlpine>3.18.2</com.io7m.oci.versionAlpine>
+    <com.io7m.oci.versionTemurin>21_35-jre-alpine</com.io7m.oci.versionTemurin>
     <spotbugs.skip>true</spotbugs.skip>
   </properties>
 
@@ -124,8 +125,27 @@
                     <argument>--timestamp</argument>
                     <argument>1577836800</argument>
                     <argument>-t</argument>
-                    <argument>quay.io/io7mcom/servitor:${project.version}</argument>
+                    <argument>${com.io7m.oci.registry}/servitor:${project.version}</argument>
                     <argument>${project.build.directory}/oci</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+
+              <!-- Run the image as a basic sanity check. -->
+              <execution>
+                <id>oci-image-run-check</id>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                  <executable>podman</executable>
+                  <arguments>
+                    <argument>run</argument>
+                    <argument>--rm</argument>
+                    <argument>--read-only</argument>
+                    <argument>${com.io7m.oci.registry}/servitor:${project.version}</argument>
+                    <argument>help</argument>
                   </arguments>
                 </configuration>
               </execution>
@@ -141,7 +161,7 @@
                   <executable>podman</executable>
                   <arguments>
                     <argument>push</argument>
-                    <argument>quay.io/io7mcom/servitor:${project.version}</argument>
+                    <argument>${com.io7m.oci.registry}/servitor:${project.version}</argument>
                   </arguments>
                 </configuration>
               </execution>

@@ -18,6 +18,7 @@ package com.io7m.servitor.systemd;
 
 import com.io7m.jaffirm.core.Postconditions;
 import com.io7m.servitor.core.SvConfiguration;
+import com.io7m.servitor.core.SvDevicePassthrough;
 import com.io7m.servitor.core.SvException;
 import com.io7m.servitor.core.SvLimits;
 import com.io7m.servitor.core.SvOCIImage;
@@ -232,6 +233,7 @@ public final class SvUnitGeneration
     writer.println("  --rm \\");
     writer.println("  --replace \\");
 
+    writeDevicePassthroughs(writer, service.devicePassthroughs());
     writeEnvironmentVariables(writer, service.environmentVariables());
     writeLimits(writer, service.limits());
     writeVolumes(writer, service.volumes());
@@ -240,6 +242,37 @@ public final class SvUnitGeneration
     writeImage(writer, service.image());
     writeArguments(writer, service.containerArguments());
     writer.println();
+  }
+
+  private static void writeDevicePassthroughs(
+    final PrintWriter writer,
+    final List<SvDevicePassthrough> devices)
+  {
+    for (final var device : devices) {
+      writeDevicePassthrough(writer, device);
+    }
+  }
+
+  private static void writeDevicePassthrough(
+    final PrintWriter writer,
+    final SvDevicePassthrough device)
+  {
+    writer.printf("  --device='%s:%s", device.hostPath(), device.mountedAt());
+    if (!device.permissions().isEmpty()) {
+      final var text =
+        device.permissions()
+          .stream()
+          .map(x -> switch (x) {
+            case READ -> "r";
+            case WRITE -> "w";
+            case MKNOD -> "m";
+          })
+          .collect(Collectors.joining());
+      writer.printf(":%s'", text);
+    } else {
+      writer.print("'");
+    }
+    writer.printf(" \\%n");
   }
 
   private static void writeOutboundAddress(
