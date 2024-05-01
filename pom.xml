@@ -18,7 +18,7 @@
   <packaging>pom</packaging>
   <name>com.io7m.servitor</name>
   <description>Static podman/systemd service orchestrator</description>
-  <url>https://www.github.com/io7m/servitor</url>
+  <url>https://www.github.com/io7m-com/servitor</url>
 
   <modules>
     <module>com.io7m.servitor.cmdline</module>
@@ -45,9 +45,9 @@
   </licenses>
 
   <scm>
-    <url>https://www.github.com/io7m/servitor</url>
-    <connection>scm:git:https://github.com/io7m/servitor</connection>
-    <developerConnection>scm:git:https://github.com/io7m/servitor</developerConnection>
+    <url>https://www.github.com/io7m-com/servitor</url>
+    <connection>scm:git:https://www.github.com/io7m-com/servitor</connection>
+    <developerConnection>scm:git:https://www.github.com/io7m-com/servitor</developerConnection>
   </scm>
 
   <developers>
@@ -60,7 +60,7 @@
   </developers>
 
   <issueManagement>
-    <url>https://www.github.com/io7m/servitor/issues</url>
+    <url>https://www.github.com/io7m-com/servitor/issues</url>
     <system>GitHub Issues</system>
   </issueManagement>
 
@@ -82,7 +82,7 @@
 
   <ciManagement>
     <system>GitHub Actions</system>
-    <url>https://github.com/servitor/actions</url>
+    <url>https://www.github.com/io7m-com/servitor/actions</url>
   </ciManagement>
 
   <prerequisites>
