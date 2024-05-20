@@ -19,8 +19,8 @@
            Tag="3.53.0"
            Hash="sha256:5b9bef9e5354088edc79bd05db7144eccd0d217e8986c3e41c5191a892b38025"/>
 
-    <Limits CPU="1.0"
-            Memory="4000000000"/>
+    <Limits CPUPercent="100"
+            MemoryLimitSoft="4000000000"/>
 
     <OutboundAddress IPv6Address="www.example.com"/>
 
@@ -68,8 +68,8 @@
            Tag="2.387.3-lts-jdk11"
            Hash="sha256:b36a2b4fc774b77bb84834ea28e1393b4cbc453c03b95bc1fec166e06f671060"/>
 
-    <Limits CPU="2.0"
-            Memory="2000000000"/>
+    <Limits CPUPercent="200"
+            MemoryLimitSoft="2000000000"/>
 
     <OutboundAddress IPv6Address="www.example.com"/>
 
@@ -123,8 +123,8 @@
            Tag="3.2.0"
            Hash="sha256:d572470ea7893fed48007fec9ea312e6e3144b3bdd679b28f23ca1998b9fdd8b"/>
 
-    <Limits CPU="1.0"
-            Memory="128000000"/>
+    <Limits CPUPercent="100"
+            MemoryLimitSoft="128000000"/>
 
     <OutboundAddress IPv6Address="www.example.com"/>
 
@@ -177,8 +177,8 @@
              Tag="9.5.2"
              Hash="sha256:50dc002f67c1f1ae43fec4fd5f1f722c3e15407e3c4a0ded7ffa81ca19b3b3f5"/>
 
-      <Limits CPU="1.0"
-              Memory="512000000"/>
+      <Limits CPUPercent="100"
+              MemoryLimitSoft="512000000"/>
 
       <OutboundAddress IPv6Address="www.example.com"/>
 
@@ -228,8 +228,8 @@
              Tag="2.1.1"
              Hash="sha256:6ad3a9693d45c59e12d73c5cc7e570b9852cfcf69cbaddd402d0c52fa8cca91d"/>
 
-      <Limits CPU="1.0"
-              Memory="512000000"/>
+      <Limits CPUPercent="100"
+              MemoryLimitSoft="512000000"/>
 
       <OutboundAddress IPv6Address="www.example.com"/>
 
@@ -305,8 +305,9 @@
                Tag="15.2"
                Hash="sha256:98d432a8179396af30b959954520d8d23138d631495679446f3147380f6257c7"/>
 
-        <Limits CPU="1.0"
-                Memory="1000000000"/>
+        <Limits CPUPercent="100"
+                MemoryLimitSoft="1000000000"
+                MemoryLimitHard="1000000000"/>
 
         <OutboundAddress IPv6Address="www.example.com"
                          IPv4Address="www.example.com"/>

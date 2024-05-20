@@ -93,21 +93,33 @@
     </annotation>
 
     <complexType>
-      <attribute name="CPU"
-                 type="double"
-                 use="required">
+      <attribute name="CPUPercent"
+                 type="unsignedInt"
+                 use="optional">
         <annotation>
           <documentation xml:lang="en">
-            The CPU share. See podman-run(1) "--cpus".
+            The CPU quota. See
+            https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html#CPUQuota=
           </documentation>
         </annotation>
       </attribute>
-      <attribute name="Memory"
+      <attribute name="MemoryLimitSoft"
                  type="unsignedLong"
-                 use="required">
+                 use="optional">
         <annotation>
           <documentation xml:lang="en">
-            The memory limit in bytes. See podman-run(1) "--memory".
+            The memory limit in bytes. See
+            https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html#MemoryHigh=bytes
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="MemoryLimitHard"
+                 type="unsignedLong"
+                 use="optional">
+        <annotation>
+          <documentation xml:lang="en">
+            The memory limit in bytes. See
+            https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html#MemoryMax=bytes
           </documentation>
         </annotation>
       </attribute>

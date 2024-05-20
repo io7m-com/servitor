@@ -20,7 +20,6 @@ import com.io7m.jaffirm.core.Postconditions;
 import com.io7m.servitor.core.SvConfiguration;
 import com.io7m.servitor.core.SvDevicePassthrough;
 import com.io7m.servitor.core.SvException;
-import com.io7m.servitor.core.SvLimits;
 import com.io7m.servitor.core.SvOCIImage;
 import com.io7m.servitor.core.SvOutboundAddress;
 import com.io7m.servitor.core.SvPublishPort;
@@ -97,16 +96,14 @@ public final class SvUnitGeneration
     final SvServiceElementType element)
     throws SvException
   {
-    if (element instanceof final SvServiceGroup group) {
-      return generateOneGroup(configuration, group);
-    }
-    if (element instanceof final SvService service) {
-      return generateOneService(configuration, service);
-    }
-
-    throw new IllegalStateException(
-      "Unrecognized element type: %s".formatted(element.getClass())
-    );
+    return switch (element) {
+      case final SvServiceGroup group -> {
+        yield generateOneGroup(configuration, group);
+      }
+      case final SvService service -> {
+        yield generateOneService(configuration, service);
+      }
+    };
   }
 
   private static Optional<SvServiceGroup> parentOf(
@@ -172,6 +169,7 @@ public final class SvUnitGeneration
       writer.println("TimeoutStartSec=300");
       writer.println();
 
+      writeServiceResourceLimits(writer, service);
       writeExecStart(writer, service, serviceName);
       writeExecStop(writer, serviceName);
       writeExecStopPost(writer, serviceName);
@@ -182,6 +180,27 @@ public final class SvUnitGeneration
       "%s.service".formatted(serviceName),
       stringWriter.toString()
     ));
+  }
+
+  private static void writeServiceResourceLimits(
+    final PrintWriter writer,
+    final SvService service)
+  {
+    final var limits = service.limits();
+    limits.cpuPercent().ifPresent(cpuPercent -> {
+      writer.println("CPUAccounting=true");
+      writer.printf("CPUQuota=%d%%%n", cpuPercent);
+    });
+
+    if (limits.memoryLimited()) {
+      writer.println("MemoryAccounting=true");
+      limits.memoryLimitSoft().ifPresent(mem -> {
+        writer.printf("MemoryHigh=%s%n", Long.toUnsignedString(mem.longValue()));
+      });
+      limits.memoryLimitHard().ifPresent(mem -> {
+        writer.printf("MemoryMax=%s%n", Long.toUnsignedString(mem.longValue()));
+      });
+    }
   }
 
   private static String sliceNameOf(
@@ -235,7 +254,6 @@ public final class SvUnitGeneration
 
     writeDevicePassthroughs(writer, service.devicePassthroughs());
     writeEnvironmentVariables(writer, service.environmentVariables());
-    writeLimits(writer, service.limits());
     writeVolumes(writer, service.volumes());
     writeOutboundAddress(writer, service.outboundAddress());
     writePorts(writer, service.ports());
@@ -502,14 +520,6 @@ public final class SvUnitGeneration
         yield "[%s]".formatted(v6);
       }
     };
-  }
-
-  private static void writeLimits(
-    final PrintWriter writer,
-    final SvLimits limits)
-  {
-    writer.printf("  --cpus %s \\%n", Double.valueOf(limits.cpus()));
-    writer.printf("  --memory %s \\%n", Long.toUnsignedString(limits.memory()));
   }
 
   private static void writeRunAs(

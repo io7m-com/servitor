@@ -473,8 +473,12 @@ public final class SvConfigurationFiles
     final Limits limits)
   {
     return new SvLimits(
-      limits.getCPU(),
-      limits.getMemory().longValueExact()
+      Optional.ofNullable(limits.getCPUPercent())
+        .map(x -> Integer.valueOf(x.intValue())),
+      Optional.ofNullable(limits.getMemoryLimitSoft())
+        .map(x -> Long.valueOf(x.longValueExact())),
+      Optional.ofNullable(limits.getMemoryLimitHard())
+        .map(x -> Long.valueOf(x.longValueExact()))
     );
   }
 

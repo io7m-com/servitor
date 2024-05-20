@@ -16,18 +16,31 @@
 
 package com.io7m.servitor.core;
 
+import java.util.Optional;
+
 /**
  * Service resource limits.
  *
- * @param cpus   The cpu share
- * @param memory The memory limit in bytes
+ * @param cpuPercent      The cpu percentage limit
+ * @param memoryLimitSoft The soft memory limit in bytes; exceeding this
+ *                        value will cause throttling of processes
+ * @param memoryLimitHard The hard memory limit in bytes; exceeding this
+ *                        value will kill the process
  *
- * @see "podman-run(1)"
+ * @see "https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html"
  */
 
 public record SvLimits(
-  double cpus,
-  long memory)
+  Optional<Integer> cpuPercent,
+  Optional<Long> memoryLimitSoft,
+  Optional<Long> memoryLimitHard)
 {
+  /**
+   * @return {@code true} if any memory limits are defined
+   */
 
+  public boolean memoryLimited()
+  {
+    return this.memoryLimitSoft.isPresent() || this.memoryLimitHard.isPresent();
+  }
 }
