@@ -47,6 +47,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.io7m.servitor.core.SvContainerFlag.READ_ONLY_ROOT;
@@ -161,14 +162,20 @@ public final class SvUnitGeneration
 
       writer.println("[Service]");
       writer.printf("Slice=%s.slice%n", sliceNameOf(configuration, service));
-      writer.println("Type=exec");
-      writeRunAs(writer, service.runAs());
-      writer.println("Restart=on-failure");
-      writer.println("RestartSec=10s");
-      writer.println("TimeoutStopSec=70");
-      writer.println("TimeoutStartSec=300");
-      writer.println();
 
+      if (service.isOneShot()) {
+        writer.println("Type=oneshot");
+        writer.println();
+      } else {
+        writer.println("Type=exec");
+        writer.println("Restart=on-failure");
+        writer.println("RestartSec=10s");
+        writer.println("TimeoutStopSec=70");
+        writer.println("TimeoutStartSec=300");
+        writer.println();
+      }
+
+      writeRunAs(writer, service.runAs());
       writeServiceResourceLimits(writer, service);
       writeExecStart(writer, service, serviceName);
       writeExecStop(writer, serviceName);
@@ -186,10 +193,13 @@ public final class SvUnitGeneration
     final PrintWriter writer,
     final SvService service)
   {
+    final var wrote = new AtomicBoolean(false);
+
     final var limits = service.limits();
     limits.cpuPercent().ifPresent(cpuPercent -> {
       writer.println("CPUAccounting=true");
       writer.printf("CPUQuota=%d%%%n", cpuPercent);
+      wrote.set(true);
     });
 
     if (limits.memoryLimited()) {
@@ -200,6 +210,11 @@ public final class SvUnitGeneration
       limits.memoryLimitHard().ifPresent(mem -> {
         writer.printf("MemoryMax=%s%n", Long.toUnsignedString(mem.longValue()));
       });
+      wrote.set(true);
+    }
+
+    if (wrote.get()) {
+      writer.println();
     }
   }
 

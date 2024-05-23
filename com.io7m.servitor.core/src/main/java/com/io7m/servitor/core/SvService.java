@@ -30,6 +30,7 @@ import java.util.UUID;
  * @param description          The description
  * @param id                   The unique ID
  * @param image                The image
+ * @param isOneShot            The service is a one-shot service
  * @param limits               The limits
  * @param runAs                The user/group to run as
  * @param ports                The published ports
@@ -45,6 +46,7 @@ public record SvService(
   SvServiceName name,
   String description,
   UUID id,
+  boolean isOneShot,
   SvOCIImage image,
   SvLimits limits,
   SvRunAs runAs,
@@ -63,6 +65,7 @@ public record SvService(
    * @param name                 The service name
    * @param description          The description
    * @param id                   The unique ID
+   * @param isOneShot            The service is a one-shot service
    * @param image                The image
    * @param limits               The limits
    * @param runAs                The user/group to run as

@@ -719,6 +719,17 @@
             <element ref="s:Volumes"/>
           </sequence>
         </sequence>
+
+        <attribute name="OneShot"
+                   type="boolean"
+                   default="false"
+                   use="optional">
+          <annotation>
+            <documentation xml:lang="en">
+              True if the service is a one-shot service.
+            </documentation>
+          </annotation>
+        </attribute>
       </extension>
     </complexContent>
   </complexType>

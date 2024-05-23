@@ -266,6 +266,7 @@ public final class SvConfigurationFiles
       new SvServiceName(service.getName()),
       service.getDescription(),
       UUID.fromString(service.getID()),
+      service.isOneShot(),
       processImage(service.getImage()),
       processLimits(service.getLimits()),
       processRunAs(service.getRunAs()),
