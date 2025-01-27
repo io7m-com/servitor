@@ -4,6 +4,19 @@
         xmlns:s="urn:com.io7m.servitor:1:0"
         targetNamespace="urn:com.io7m.servitor:1:0">
 
+  <import namespace="http://www.w3.org/XML/1998/namespace"
+          schemaLocation="xml.xsd"/>
+
+  <attributeGroup name="standardXMLAttributes">
+    <annotation>
+      <documentation xml:lang="en">
+        The standard elements expected to appear in XML texts.
+      </documentation>
+    </annotation>
+    <attribute ref="xml:base"/>
+    <attribute ref="xml:lang"/>
+  </attributeGroup>
+
   <simpleType name="UUIDType">
     <annotation>
       <documentation xml:lang="en">
@@ -720,6 +733,8 @@
           </sequence>
         </sequence>
 
+        <attributeGroup ref="s:standardXMLAttributes"/>
+
         <attribute name="OneShot"
                    type="boolean"
                    default="false"
@@ -757,6 +772,8 @@
                   maxOccurs="unbounded">
           <group ref="s:ServiceGroupElements"/>
         </sequence>
+
+        <attributeGroup ref="s:standardXMLAttributes"/>
       </extension>
     </complexContent>
   </complexType>
