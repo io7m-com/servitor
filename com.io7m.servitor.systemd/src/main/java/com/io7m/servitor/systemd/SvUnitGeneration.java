@@ -205,7 +205,9 @@ public final class SvUnitGeneration
     if (limits.memoryLimited()) {
       writer.println("MemoryAccounting=true");
       limits.memoryLimitSoft().ifPresent(mem -> {
-        writer.printf("MemoryHigh=%s%n", Long.toUnsignedString(mem.longValue()));
+        writer.printf(
+          "MemoryHigh=%s%n",
+          Long.toUnsignedString(mem.longValue()));
       });
       limits.memoryLimitHard().ifPresent(mem -> {
         writer.printf("MemoryMax=%s%n", Long.toUnsignedString(mem.longValue()));
@@ -646,21 +648,26 @@ public final class SvUnitGeneration
 
       writeInstall(writer, configuration, group);
 
+      final var edges =
+        configuration.graph().outgoingEdgesOf(group);
+      final var wants =
+        new ArrayList<String>();
+
+      for (final var edge : edges) {
+        final var targetServiceName =
+          nameFor(configuration, edge.target());
+        wants.add("%s.service".formatted(targetServiceName));
+      }
+
       writer.println("[Unit]");
       writer.printf("Description=%s (Control service)%n", group.description());
-      writer.println();
-
-      writer.println("[Service]");
-      writer.printf("Slice=%s.slice%n", sliceNameOf(configuration, group));
-      writer.println("Type=oneshot");
-      writer.println("ExecStart=/bin/true");
-      writer.println("RemainAfterExit=yes");
+      writer.printf("Wants=%s%n", String.join(" ", wants));
       writer.println();
     }
 
     return new SvUnit(
       group,
-      "%s.service".formatted(serviceName),
+      "%s.target".formatted(serviceName),
       stringWriter.toString()
     );
   }
