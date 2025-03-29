@@ -23,7 +23,8 @@ module com.io7m.servitor.xml
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
-  requires transitive com.io7m.servitor.core;
+  requires com.io7m.servitor.core;
+  requires org.jgrapht.core;
   requires jakarta.xml.bind;
 
   exports com.io7m.servitor.xml;

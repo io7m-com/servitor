@@ -21,12 +21,14 @@ import com.io7m.quarrel.core.QCommandContextType;
 import com.io7m.quarrel.core.QCommandMetadata;
 import com.io7m.quarrel.core.QCommandStatus;
 import com.io7m.quarrel.core.QCommandType;
+import com.io7m.quarrel.core.QParameterNamed01;
 import com.io7m.quarrel.core.QParameterNamed1;
 import com.io7m.quarrel.core.QParameterNamedType;
 import com.io7m.quarrel.core.QParametersPositionalNone;
 import com.io7m.quarrel.core.QParametersPositionalType;
 import com.io7m.quarrel.core.QStringType.QConstant;
 import com.io7m.quarrel.ext.logback.QLogback;
+import com.io7m.servitor.core.SvAddressResolverDNSJ;
 import com.io7m.servitor.systemd.SvUnitGeneration;
 import com.io7m.servitor.validation.SvValidators;
 import com.io7m.servitor.xml.SvConfigurationFiles;
@@ -55,6 +57,15 @@ public final class SvCmdSystemd implements QCommandType
 {
   private static final Logger LOG =
     LoggerFactory.getLogger(SvCmdSystemd.class);
+
+  private static final QParameterNamed01<String> DNS_SERVER =
+    new QParameterNamed01<>(
+      "--dns-server",
+      List.of(),
+      new QConstant("The DNS server."),
+      Optional.empty(),
+      String.class
+    );
 
   private static final QParameterNamed1<Path> CONFIGURATION =
     new QParameterNamed1<>(
@@ -87,7 +98,7 @@ public final class SvCmdSystemd implements QCommandType
   public List<QParameterNamedType<?>> onListNamedParameters()
   {
     return Stream.concat(
-      Stream.of(CONFIGURATION, OUTPUT_DIRECTORY),
+      Stream.of(CONFIGURATION, OUTPUT_DIRECTORY, DNS_SERVER),
       QLogback.parameters().stream()
     ).toList();
   }
@@ -109,6 +120,11 @@ public final class SvCmdSystemd implements QCommandType
       context.parameterValue(CONFIGURATION);
     final var outputDirectory =
       context.parameterValue(OUTPUT_DIRECTORY);
+    final var dnsServer =
+      context.parameterValue(DNS_SERVER);
+
+    final var resolver =
+      SvAddressResolverDNSJ.create(dnsServer);
 
     final var configuration =
       SvConfigurationFiles.parse(configurationFile);
@@ -125,7 +141,7 @@ public final class SvCmdSystemd implements QCommandType
     }
 
     final var units =
-      SvUnitGeneration.generate(configuration);
+      SvUnitGeneration.generate(resolver, configuration);
 
     Files.createDirectories(outputDirectory);
 

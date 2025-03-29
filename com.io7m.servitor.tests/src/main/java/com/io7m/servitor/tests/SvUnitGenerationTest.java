@@ -17,6 +17,8 @@
 
 package com.io7m.servitor.tests;
 
+import com.io7m.servitor.core.SvAddressResolverDNSJ;
+import com.io7m.servitor.core.SvAddressResolverType;
 import com.io7m.servitor.systemd.SvUnitGeneration;
 import com.io7m.servitor.xml.SvConfigurationFiles;
 import org.apache.commons.configuration2.INIConfiguration;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public final class SvUnitGenerationTest
 {
@@ -36,12 +39,14 @@ public final class SvUnitGenerationTest
     LoggerFactory.getLogger(SvUnitGenerationTest.class);
 
   private Path directory;
+  private SvAddressResolverType resolver;
 
   @BeforeEach
   public void setup()
-    throws IOException
+    throws Exception
   {
     this.directory = SvTestDirectories.createTempDirectory();
+    this.resolver = SvAddressResolverDNSJ.create(Optional.empty());
   }
 
   @AfterEach
@@ -63,7 +68,7 @@ public final class SvUnitGenerationTest
       SvConfigurationFiles.parse(file);
 
     final var units =
-      SvUnitGeneration.generate(configuration);
+      SvUnitGeneration.generate(this.resolver, configuration);
 
     for (final var unit : units) {
       LOG.debug("{}:{}", unit.fileName(), unit.fileText());

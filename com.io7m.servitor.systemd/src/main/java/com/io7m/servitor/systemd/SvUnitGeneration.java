@@ -17,6 +17,7 @@
 package com.io7m.servitor.systemd;
 
 import com.io7m.jaffirm.core.Postconditions;
+import com.io7m.servitor.core.SvAddressResolverType;
 import com.io7m.servitor.core.SvConfiguration;
 import com.io7m.servitor.core.SvDevicePassthrough;
 import com.io7m.servitor.core.SvException;
@@ -37,7 +38,6 @@ import java.io.StringWriter;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -67,6 +67,7 @@ public final class SvUnitGeneration
   /**
    * Generate a set of service files from the given configuration.
    *
+   * @param resolver      The resolver
    * @param configuration The configuration
    *
    * @return The set of units
@@ -75,9 +76,11 @@ public final class SvUnitGeneration
    */
 
   public static List<SvUnit> generate(
+    final SvAddressResolverType resolver,
     final SvConfiguration configuration)
     throws SvException
   {
+    Objects.requireNonNull(resolver, "resolver");
     Objects.requireNonNull(configuration, "configuration");
 
     final var results =
@@ -86,23 +89,24 @@ public final class SvUnitGeneration
       new DepthFirstIterator<>(configuration.graph());
 
     while (iterator.hasNext()) {
-      results.addAll(generateOne(configuration, iterator.next()));
+      results.addAll(generateOne(resolver, configuration, iterator.next()));
     }
 
     return List.copyOf(results);
   }
 
   private static List<SvUnit> generateOne(
+    final SvAddressResolverType resolver,
     final SvConfiguration configuration,
     final SvServiceElementType element)
     throws SvException
   {
     return switch (element) {
       case final SvServiceGroup group -> {
-        yield generateOneGroup(configuration, group);
+        yield generateOneGroup(resolver, configuration, group);
       }
       case final SvService service -> {
-        yield generateOneService(configuration, service);
+        yield generateOneService(resolver, configuration, service);
       }
     };
   }
@@ -125,6 +129,7 @@ public final class SvUnitGeneration
   }
 
   private static List<SvUnit> generateOneService(
+    final SvAddressResolverType resolver,
     final SvConfiguration configuration,
     final SvService service)
     throws SvException
@@ -177,7 +182,7 @@ public final class SvUnitGeneration
 
       writeRunAs(writer, service.runAs());
       writeServiceResourceLimits(writer, service);
-      writeExecStart(writer, service, serviceName);
+      writeExecStart(resolver, writer, service, serviceName);
       writeExecStop(writer, serviceName);
       writeExecStopPost(writer, serviceName);
     }
@@ -250,6 +255,7 @@ public final class SvUnitGeneration
   }
 
   private static void writeExecStart(
+    final SvAddressResolverType resolver,
     final PrintWriter writer,
     final SvService service,
     final String serviceName)
@@ -272,8 +278,8 @@ public final class SvUnitGeneration
     writeDevicePassthroughs(writer, service.devicePassthroughs());
     writeEnvironmentVariables(writer, service.environmentVariables());
     writeVolumes(writer, service.volumes());
-    writeOutboundAddress(writer, service.outboundAddress());
-    writePorts(writer, service.ports());
+    writeOutboundAddress(resolver, writer, service.outboundAddress());
+    writePorts(resolver, writer, service.ports());
     writeImage(writer, service.image());
     writeArguments(writer, service.containerArguments());
     writer.println();
@@ -311,17 +317,18 @@ public final class SvUnitGeneration
   }
 
   private static void writeOutboundAddress(
+    final SvAddressResolverType resolver,
     final PrintWriter writer,
     final SvOutboundAddress outbound)
     throws SvException
   {
     final var inet6 =
-      lookupIPv6(outbound.ipv6Address());
+      lookupIPv6(resolver, outbound.ipv6Address());
 
     Optional<Inet4Address> inet4 = Optional.empty();
     final var text = outbound.ipv4Address();
     if (text.isPresent()) {
-      inet4 = Optional.of(lookupIPv4(text.get()));
+      inet4 = Optional.of(lookupIPv4(resolver, text.get()));
     }
 
     writer.printf(
@@ -419,6 +426,7 @@ public final class SvUnitGeneration
   }
 
   private static void writePorts(
+    final SvAddressResolverType resolver,
     final PrintWriter writer,
     final List<SvPublishPort> ports)
     throws SvException
@@ -426,7 +434,7 @@ public final class SvUnitGeneration
     for (final var port : ports) {
       writer.printf(
         "  --publish '%s:%s:%s/%s' \\%n",
-        formatAddress(port),
+        formatAddress(resolver, port),
         Integer.valueOf(port.portExternal()),
         Integer.valueOf(port.portInternal()),
         port.type().name().toLowerCase(Locale.ROOT)
@@ -435,71 +443,35 @@ public final class SvUnitGeneration
   }
 
   private static Inet4Address lookupIPv4(
+    final SvAddressResolverType resolver,
     final String name)
     throws SvException
   {
-    return Arrays.stream(lookupAll(name))
-      .filter(a -> a instanceof Inet4Address)
-      .map(Inet4Address.class::cast)
-      .findFirst()
-      .orElseThrow(() -> {
-        return new SvException(
-          "No IPv4 address could be resolved for the host.",
-          "error-dns",
-          Map.ofEntries(
-            Map.entry("Host", name)
-          ),
-          Optional.empty()
-        );
-      });
+    return resolver.resolveIPV4(name);
   }
 
   private static InetAddress[] lookupAll(
+    final SvAddressResolverType resolver,
     final String name)
-    throws SvException
   {
-    final InetAddress[] addresses;
-    try {
-      addresses = InetAddress.getAllByName(name);
-    } catch (final UnknownHostException e) {
-      throw new SvException(
-        "Unknown host.",
-        e,
-        "error-dns",
-        Map.ofEntries(
-          Map.entry("Host", name)
-        ),
-        Optional.empty()
-      );
-    }
-    return addresses;
+    return resolver.resolveAll(name);
   }
 
   private static Inet6Address lookupIPv6(
+    final SvAddressResolverType resolver,
     final String name)
     throws SvException
   {
-    return Arrays.stream(lookupAll(name))
-      .filter(a -> a instanceof Inet6Address)
-      .map(Inet6Address.class::cast)
-      .findFirst()
-      .orElseThrow(() -> {
-        return new SvException(
-          "No IPv6 address could be resolved for the host.",
-          "error-dns",
-          Map.ofEntries(
-            Map.entry("Host", name)
-          ),
-          Optional.empty()
-        );
-      });
+    return resolver.resolveIPV6(name);
   }
 
   private static String formatAddress(
+    final SvAddressResolverType resolver,
     final SvPublishPort port)
     throws SvException
   {
-    final var addresses = lookupAll(port.host());
+    final var addresses =
+      lookupAll(resolver, port.host());
 
     return switch (port.family()) {
       case IPV4 -> {
@@ -597,6 +569,7 @@ public final class SvUnitGeneration
   }
 
   private static List<SvUnit> generateOneGroup(
+    final SvAddressResolverType resolver,
     final SvConfiguration configuration,
     final SvServiceGroup group)
   {

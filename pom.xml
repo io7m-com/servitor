@@ -126,6 +126,11 @@
         <artifactId>com.io7m.jaffirm.core</artifactId>
         <version>4.0.0</version>
       </dependency>
+      <dependency>
+        <groupId>dnsjava</groupId>
+        <artifactId>dnsjava</artifactId>
+        <version>3.6.3</version>
+      </dependency>
 
       <!-- CLI -->
       <dependency>
@@ -141,14 +146,11 @@
 
       <!-- Test suite. -->
       <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
         <version>${junit.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>${junit.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>

@@ -23,8 +23,9 @@ module com.io7m.servitor.core
   requires static org.osgi.annotation.bundle;
   requires static org.osgi.annotation.versioning;
 
-  requires transitive org.jgrapht.core;
-  requires transitive com.io7m.seltzer.api;
+  requires com.io7m.seltzer.api;
+  requires org.dnsjava;
+  requires org.jgrapht.core;
 
   exports com.io7m.servitor.core;
 }

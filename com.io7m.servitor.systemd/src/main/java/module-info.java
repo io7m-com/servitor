@@ -26,6 +26,7 @@ module com.io7m.servitor.systemd
   requires com.io7m.jaffirm.core;
   requires com.io7m.servitor.core;
   requires org.apache.commons.text;
+  requires org.jgrapht.core;
 
   exports com.io7m.servitor.systemd;
 }
