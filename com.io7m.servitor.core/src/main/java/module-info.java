@@ -24,6 +24,7 @@ module com.io7m.servitor.core
   requires static org.osgi.annotation.versioning;
 
   requires com.io7m.seltzer.api;
+  requires inet.ipaddr;
   requires org.dnsjava;
   requires org.jgrapht.core;
 

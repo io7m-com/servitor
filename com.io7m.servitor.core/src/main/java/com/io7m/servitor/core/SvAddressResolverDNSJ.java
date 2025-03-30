@@ -17,6 +17,8 @@
 
 package com.io7m.servitor.core;
 
+import inet.ipaddr.AddressStringException;
+import inet.ipaddr.IPAddressString;
 import org.xbill.DNS.AAAARecord;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.DClass;
@@ -88,6 +90,14 @@ public final class SvAddressResolverDNSJ
     throws SvException
   {
     try {
+      try {
+        final var ipv4Address =
+          new IPAddressString(hostName).toAddress();
+        return (Inet4Address) Inet4Address.getByAddress(ipv4Address.getBytes());
+      } catch (final AddressStringException e) {
+        // Ignore!
+      }
+
       final var lookup =
         new Lookup(
           Name.fromString(hostName, Name.root),
@@ -127,6 +137,14 @@ public final class SvAddressResolverDNSJ
     throws SvException
   {
     try {
+      try {
+        final var ipv6Address =
+          new IPAddressString(hostName).toAddress();
+        return (Inet6Address) Inet6Address.getByAddress(ipv6Address.getBytes());
+      } catch (final AddressStringException e) {
+        // Ignore!
+      }
+
       final var lookup =
         new Lookup(
           Name.fromString(hostName, Name.root),
