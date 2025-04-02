@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -21,30 +21,26 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * The outbound address of a container.
+ * Networking information for a container.
  *
- * @param ipv4Address The optional IPv4 host
- * @param ipv6Address The optional IPv6 host
- * @param mtu         The optional MTU size
+ * @param backend         The backend
+ * @param outboundAddress The outbound address information
  */
 
-public record SvOutboundAddress(
-  Optional<String> ipv6Address,
-  Optional<String> ipv4Address,
-  Optional<Integer> mtu)
+public record SvNetworking(
+  SvNetworkBackendType backend,
+  Optional<SvOutboundAddress> outboundAddress)
 {
   /**
-   * The outbound address of a container.
+   * Networking information for a container.
    *
-   * @param ipv4Address The optional IPv4 host
-   * @param ipv6Address The optional IPv6 host
-   * @param mtu         The optional MTU size
+   * @param backend         The backend
+   * @param outboundAddress The outbound address information
    */
 
-  public SvOutboundAddress
+  public SvNetworking
   {
-    Objects.requireNonNull(ipv4Address, "ipv4Address");
-    Objects.requireNonNull(ipv6Address, "ipv6Address");
-    Objects.requireNonNull(mtu, "mtu");
+    Objects.requireNonNull(backend, "backend");
+    Objects.requireNonNull(outboundAddress, "outboundAddress");
   }
 }

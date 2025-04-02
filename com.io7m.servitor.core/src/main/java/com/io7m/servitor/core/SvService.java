@@ -38,7 +38,7 @@ import java.util.UUID;
  * @param containerFlags       The container flags
  * @param environmentVariables The environment variables
  * @param containerArguments   The command-line arguments passed to the container entrypoint
- * @param outboundAddress      The outbound address
+ * @param networking           The networking information
  * @param devicePassthroughs   The device passthroughs
  */
 
@@ -55,7 +55,7 @@ public record SvService(
   Set<SvContainerFlag> containerFlags,
   Map<String, String> environmentVariables,
   List<String> containerArguments,
-  SvOutboundAddress outboundAddress,
+  SvNetworking networking,
   List<SvDevicePassthrough> devicePassthroughs)
   implements SvServiceElementType
 {
@@ -74,7 +74,7 @@ public record SvService(
    * @param containerFlags       The container flags
    * @param environmentVariables The environment variables
    * @param containerArguments   The command-line arguments passed to the container entrypoint
-   * @param outboundAddress      The outbound address
+   * @param networking           The networking information
    * @param devicePassthroughs   The device passthroughs
    */
 
@@ -84,7 +84,7 @@ public record SvService(
     Objects.requireNonNull(description, "description");
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(image, "image");
-    Objects.requireNonNull(outboundAddress, "outboundAddress");
+    Objects.requireNonNull(networking, "outboundAddress");
 
     ports = List.copyOf(ports);
     volumes = List.copyOf(volumes);

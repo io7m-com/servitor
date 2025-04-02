@@ -22,7 +22,10 @@
     <Limits CPUPercent="100"
             MemoryLimitSoft="4000000000"/>
 
-    <OutboundAddress IPv6Address="www.example.com"/>
+    <Networking>
+      <NetworkBackendPasta/>
+      <OutboundAddress IPv6Address="www.example.com"/>
+    </Networking>
 
     <PublishPorts>
       <PublishPort Host="www.example.com"
@@ -71,7 +74,10 @@
     <Limits CPUPercent="200"
             MemoryLimitSoft="2000000000"/>
 
-    <OutboundAddress IPv6Address="www.example.com"/>
+    <Networking>
+      <NetworkBackendPasta/>
+      <OutboundAddress IPv6Address="www.example.com"/>
+    </Networking>
 
     <PublishPorts>
       <PublishPort Host="www.example.com"
@@ -126,7 +132,10 @@
     <Limits CPUPercent="100"
             MemoryLimitSoft="128000000"/>
 
-    <OutboundAddress IPv6Address="www.example.com"/>
+    <Networking>
+      <NetworkBackendPasta/>
+      <OutboundAddress IPv6Address="www.example.com"/>
+    </Networking>
 
     <RunAs User="_gtyrell"
            Group="_gtyrell"/>
@@ -180,7 +189,10 @@
       <Limits CPUPercent="100"
               MemoryLimitSoft="512000000"/>
 
-      <OutboundAddress IPv6Address="www.example.com"/>
+      <Networking>
+        <NetworkBackendPasta/>
+        <OutboundAddress IPv6Address="www.example.com"/>
+      </Networking>
 
       <PublishPorts>
         <PublishPort Host="www.example.com"
@@ -231,7 +243,10 @@
       <Limits CPUPercent="100"
               MemoryLimitSoft="512000000"/>
 
-      <OutboundAddress IPv6Address="www.example.com"/>
+      <Networking>
+        <NetworkBackendPasta/>
+        <OutboundAddress IPv6Address="www.example.com"/>
+      </Networking>
 
       <PublishPorts>
         <PublishPort Host="www.example.com"
@@ -309,8 +324,11 @@
                 MemoryLimitSoft="1000000000"
                 MemoryLimitHard="1000000000"/>
 
-        <OutboundAddress IPv6Address="www.example.com"
-                         IPv4Address="www.example.com"/>
+        <Networking>
+          <NetworkBackendPasta/>
+          <OutboundAddress IPv6Address="www.example.com"
+                           IPv4Address="www.example.com"/>
+        </Networking>
 
         <PublishPorts>
           <PublishPort Host="www.example.com"

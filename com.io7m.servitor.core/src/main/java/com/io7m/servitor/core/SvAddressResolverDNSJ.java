@@ -93,7 +93,12 @@ public final class SvAddressResolverDNSJ
       try {
         final var ipv4Address =
           new IPAddressString(hostName).toAddress();
-        return (Inet4Address) Inet4Address.getByAddress(ipv4Address.getBytes());
+        final var result =
+          Inet4Address.getByAddress(ipv4Address.getBytes());
+
+        if (result instanceof final Inet4Address v4) {
+          return v4;
+        }
       } catch (final AddressStringException e) {
         // Ignore!
       }
@@ -140,7 +145,12 @@ public final class SvAddressResolverDNSJ
       try {
         final var ipv6Address =
           new IPAddressString(hostName).toAddress();
-        return (Inet6Address) Inet6Address.getByAddress(ipv6Address.getBytes());
+        final var result =
+          Inet6Address.getByAddress(ipv6Address.getBytes());
+
+        if (result instanceof final Inet6Address v6) {
+          return v6;
+        }
       } catch (final AddressStringException e) {
         // Ignore!
       }

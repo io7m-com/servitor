@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,34 +17,26 @@
 
 package com.io7m.servitor.core;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.List;
 
 /**
- * The outbound address of a container.
+ * The pasta network backend.
  *
- * @param ipv4Address The optional IPv4 host
- * @param ipv6Address The optional IPv6 host
- * @param mtu         The optional MTU size
+ * @param arguments The arguments
  */
 
-public record SvOutboundAddress(
-  Optional<String> ipv6Address,
-  Optional<String> ipv4Address,
-  Optional<Integer> mtu)
+public record SvNetworkBackendPasta(
+  List<String> arguments)
+  implements SvNetworkBackendType
 {
   /**
-   * The outbound address of a container.
+   * The pasta network backend.
    *
-   * @param ipv4Address The optional IPv4 host
-   * @param ipv6Address The optional IPv6 host
-   * @param mtu         The optional MTU size
+   * @param arguments The arguments
    */
 
-  public SvOutboundAddress
+  public SvNetworkBackendPasta
   {
-    Objects.requireNonNull(ipv4Address, "ipv4Address");
-    Objects.requireNonNull(ipv6Address, "ipv6Address");
-    Objects.requireNonNull(mtu, "mtu");
+    arguments = List.copyOf(arguments);
   }
 }

@@ -24,6 +24,11 @@ import com.io7m.servitor.core.SvDevicePermission;
 import com.io7m.servitor.core.SvException;
 import com.io7m.servitor.core.SvGroupMembership;
 import com.io7m.servitor.core.SvLimits;
+import com.io7m.servitor.core.SvNetworkBackendBridge;
+import com.io7m.servitor.core.SvNetworkBackendPasta;
+import com.io7m.servitor.core.SvNetworkBackendSlirp4NetNS;
+import com.io7m.servitor.core.SvNetworkBackendType;
+import com.io7m.servitor.core.SvNetworking;
 import com.io7m.servitor.core.SvOCIImage;
 import com.io7m.servitor.core.SvOutboundAddress;
 import com.io7m.servitor.core.SvPortFamily;
@@ -46,7 +51,9 @@ import com.io7m.servitor.xml.jaxb_v1.DevicePassthroughs;
 import com.io7m.servitor.xml.jaxb_v1.EnvironmentVariables;
 import com.io7m.servitor.xml.jaxb_v1.Image;
 import com.io7m.servitor.xml.jaxb_v1.Limits;
+import com.io7m.servitor.xml.jaxb_v1.Networking;
 import com.io7m.servitor.xml.jaxb_v1.OutboundAddress;
+import com.io7m.servitor.xml.jaxb_v1.PastaArgument;
 import com.io7m.servitor.xml.jaxb_v1.PublishPort;
 import com.io7m.servitor.xml.jaxb_v1.PublishPorts;
 import com.io7m.servitor.xml.jaxb_v1.RunAs;
@@ -275,7 +282,7 @@ public final class SvConfigurationFiles
       processContainerFlags(service.getContainerFlags()),
       processEnvironmentVariables(service.getEnvironmentVariables()),
       processContainerArguments(service.getContainerArguments()),
-      processOutboundAddress(service.getOutboundAddress()),
+      processNetworking(service.getNetworking()),
       processDevicePassthroughs(service.getDevicePassthroughs())
     );
 
@@ -287,6 +294,40 @@ public final class SvConfigurationFiles
       graph.addEdge(group, result, new SvGroupMembership(group, result));
     }
     return result;
+  }
+
+  private static SvNetworking processNetworking(
+    final Networking networking)
+  {
+    SvNetworkBackendType backend = null;
+
+    {
+      if (networking.getNetworkBackendBridge() != null) {
+        backend = new SvNetworkBackendBridge();
+      }
+    }
+    {
+      final var pasta = networking.getNetworkBackendPasta();
+      if (pasta != null) {
+        backend = new SvNetworkBackendPasta(
+          pasta.getPastaArgument()
+            .stream()
+            .map(PastaArgument::getValue)
+            .toList()
+        );
+      }
+    }
+    {
+      if (networking.getNetworkBackendSlirp4Netns() != null) {
+        backend = new SvNetworkBackendSlirp4NetNS();
+      }
+    }
+
+    return new SvNetworking(
+      backend,
+      Optional.ofNullable(networking.getOutboundAddress())
+        .map(SvConfigurationFiles::processOutboundAddress)
+    );
   }
 
   private static List<SvDevicePassthrough> processDevicePassthroughs(
@@ -328,7 +369,7 @@ public final class SvConfigurationFiles
     final OutboundAddress outboundAddress)
   {
     return new SvOutboundAddress(
-      outboundAddress.getIPv6Address(),
+      Optional.ofNullable(outboundAddress.getIPv6Address()),
       Optional.ofNullable(outboundAddress.getIPv4Address()),
       Optional.ofNullable(outboundAddress.getMTU())
         .map(x -> Integer.valueOf(x.intValue()))

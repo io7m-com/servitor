@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,20 +14,15 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.servitor.core;
+
 /**
- * Static podman/systemd service orchestrator (SystemD)
+ * The slirp4netns network backend.
  */
 
-module com.io7m.servitor.systemd
+public record SvNetworkBackendSlirp4NetNS()
+  implements SvNetworkBackendType
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
 
-  requires com.io7m.jaffirm.core;
-  requires com.io7m.servitor.core;
-  requires org.apache.commons.text;
-  requires org.jgrapht.core;
-  requires org.slf4j;
-
-  exports com.io7m.servitor.systemd;
 }
