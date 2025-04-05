@@ -782,6 +782,19 @@
     </complexType>
   </element>
 
+  <element name="Entrypoint">
+    <annotation>
+      <documentation xml:lang="en">
+        An override for the image entrypoint.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="Value"
+                 type="string"
+                 use="required"/>
+    </complexType>
+  </element>
+
   <complexType name="ServiceType">
     <annotation>
       <documentation xml:lang="en">
@@ -805,6 +818,11 @@
           <sequence minOccurs="0"
                     maxOccurs="1">
             <element ref="s:DevicePassthroughs"/>
+          </sequence>
+
+          <sequence minOccurs="0"
+                    maxOccurs="1">
+            <element ref="s:Entrypoint"/>
           </sequence>
 
           <sequence minOccurs="0"

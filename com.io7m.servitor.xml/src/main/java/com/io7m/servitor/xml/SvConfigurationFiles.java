@@ -21,6 +21,7 @@ import com.io7m.servitor.core.SvConfiguration;
 import com.io7m.servitor.core.SvContainerFlag;
 import com.io7m.servitor.core.SvDevicePassthrough;
 import com.io7m.servitor.core.SvDevicePermission;
+import com.io7m.servitor.core.SvEntrypoint;
 import com.io7m.servitor.core.SvException;
 import com.io7m.servitor.core.SvGroupMembership;
 import com.io7m.servitor.core.SvLimits;
@@ -48,6 +49,7 @@ import com.io7m.servitor.xml.jaxb_v1.ContainerArguments;
 import com.io7m.servitor.xml.jaxb_v1.ContainerFlags;
 import com.io7m.servitor.xml.jaxb_v1.DevicePassthrough;
 import com.io7m.servitor.xml.jaxb_v1.DevicePassthroughs;
+import com.io7m.servitor.xml.jaxb_v1.Entrypoint;
 import com.io7m.servitor.xml.jaxb_v1.EnvironmentVariables;
 import com.io7m.servitor.xml.jaxb_v1.Image;
 import com.io7m.servitor.xml.jaxb_v1.Limits;
@@ -283,7 +285,8 @@ public final class SvConfigurationFiles
       processEnvironmentVariables(service.getEnvironmentVariables()),
       processContainerArguments(service.getContainerArguments()),
       processNetworking(service.getNetworking()),
-      processDevicePassthroughs(service.getDevicePassthroughs())
+      processDevicePassthroughs(service.getDevicePassthroughs()),
+      processEntrypoint(service.getEntrypoint())
     );
 
     graph.addVertex(result);
@@ -294,6 +297,15 @@ public final class SvConfigurationFiles
       graph.addEdge(group, result, new SvGroupMembership(group, result));
     }
     return result;
+  }
+
+  private static Optional<SvEntrypoint> processEntrypoint(
+    final Entrypoint entrypoint)
+  {
+    if (entrypoint == null) {
+      return Optional.empty();
+    }
+    return Optional.of(new SvEntrypoint(entrypoint.getValue()));
   }
 
   private static SvNetworking processNetworking(

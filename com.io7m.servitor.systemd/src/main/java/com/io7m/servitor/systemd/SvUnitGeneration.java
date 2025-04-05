@@ -20,6 +20,7 @@ import com.io7m.jaffirm.core.Postconditions;
 import com.io7m.servitor.core.SvAddressResolverType;
 import com.io7m.servitor.core.SvConfiguration;
 import com.io7m.servitor.core.SvDevicePassthrough;
+import com.io7m.servitor.core.SvEntrypoint;
 import com.io7m.servitor.core.SvException;
 import com.io7m.servitor.core.SvNetworkBackendBridge;
 import com.io7m.servitor.core.SvNetworkBackendPasta;
@@ -286,6 +287,7 @@ public final class SvUnitGeneration
     writer.println("  --replace \\");
 
     writeDevicePassthroughs(writer, service.devicePassthroughs());
+    writeEntrypoint(writer, service.entrypoint());
     writeEnvironmentVariables(writer, service.environmentVariables());
     writeVolumes(writer, service.volumes());
     writeNetwork(resolver, writer, service, service.networking());
@@ -293,6 +295,18 @@ public final class SvUnitGeneration
     writeImage(writer, service.image());
     writeArguments(writer, service.containerArguments());
     writer.println();
+  }
+
+  private static void writeEntrypoint(
+    final PrintWriter writer,
+    final Optional<SvEntrypoint> entrypoint)
+  {
+    if (entrypoint.isPresent()) {
+      writer.printf(
+        "  --entrypoint='%s' \\%n",
+        StringEscapeUtils.escapeJava(entrypoint.get().path())
+      );
+    }
   }
 
   private static void writeDevicePassthroughs(
