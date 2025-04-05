@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,19 +14,33 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.servitor.core;
+
+import java.util.Objects;
+import java.util.Optional;
+
 /**
- * Static podman/systemd service orchestrator (Core).
+ * Networking information for a container.
+ *
+ * @param backend         The backend
+ * @param outboundAddress The outbound address information
  */
 
-module com.io7m.servitor.core
+public record SvNetworking(
+  SvNetworkBackendType backend,
+  Optional<SvOutboundAddress> outboundAddress)
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * Networking information for a container.
+   *
+   * @param backend         The backend
+   * @param outboundAddress The outbound address information
+   */
 
-  requires com.io7m.seltzer.api;
-  requires inet.ipaddr;
-  requires org.dnsjava;
-  requires org.jgrapht.core;
-
-  exports com.io7m.servitor.core;
+  public SvNetworking
+  {
+    Objects.requireNonNull(backend, "backend");
+    Objects.requireNonNull(outboundAddress, "outboundAddress");
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Mark Raynsford <code@io7m.com> https://www.io7m.com
+ * Copyright © 2024 Mark Raynsford <code@io7m.com> https://www.io7m.com
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,19 +14,28 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
+package com.io7m.servitor.core;
+
+import java.util.Objects;
+
 /**
- * Static podman/systemd service orchestrator (Core).
+ * An override for the image entrypoint.
+ *
+ * @param path The path
  */
 
-module com.io7m.servitor.core
+public record SvEntrypoint(
+  String path)
 {
-  requires static org.osgi.annotation.bundle;
-  requires static org.osgi.annotation.versioning;
+  /**
+   * An override for the image entrypoint.
+   *
+   * @param path The path
+   */
 
-  requires com.io7m.seltzer.api;
-  requires inet.ipaddr;
-  requires org.dnsjava;
-  requires org.jgrapht.core;
-
-  exports com.io7m.servitor.core;
+  public SvEntrypoint
+  {
+    Objects.requireNonNull(path, "path");
+  }
 }

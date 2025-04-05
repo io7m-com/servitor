@@ -28,7 +28,8 @@ import java.net.InetAddress;
 public interface SvAddressResolverType
 {
   /**
-   * Resolve the given hostname to an IPv4 address.
+   * Resolve the given hostname to an IPv4 address. If the hostname is already
+   * a valid IPv4 address, then simply return it.
    *
    * @param hostName The name
    *
@@ -42,7 +43,8 @@ public interface SvAddressResolverType
     throws SvException;
 
   /**
-   * Resolve the given hostname to an IPv6 address.
+   * Resolve the given hostname to an IPv6 address. If the hostname is already
+   * a valid IPv6 address, then simply return it.
    *
    * @param hostName The name
    *

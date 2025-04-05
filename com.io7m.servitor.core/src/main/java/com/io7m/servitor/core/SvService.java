@@ -20,6 +20,7 @@ package com.io7m.servitor.core;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,8 +39,9 @@ import java.util.UUID;
  * @param containerFlags       The container flags
  * @param environmentVariables The environment variables
  * @param containerArguments   The command-line arguments passed to the container entrypoint
- * @param outboundAddress      The outbound address
+ * @param networking           The networking information
  * @param devicePassthroughs   The device passthroughs
+ * @param entrypoint           An override for the image entrypoint.
  */
 
 public record SvService(
@@ -55,8 +57,9 @@ public record SvService(
   Set<SvContainerFlag> containerFlags,
   Map<String, String> environmentVariables,
   List<String> containerArguments,
-  SvOutboundAddress outboundAddress,
-  List<SvDevicePassthrough> devicePassthroughs)
+  SvNetworking networking,
+  List<SvDevicePassthrough> devicePassthroughs,
+  Optional<SvEntrypoint> entrypoint)
   implements SvServiceElementType
 {
   /**
@@ -74,8 +77,9 @@ public record SvService(
    * @param containerFlags       The container flags
    * @param environmentVariables The environment variables
    * @param containerArguments   The command-line arguments passed to the container entrypoint
-   * @param outboundAddress      The outbound address
+   * @param networking           The networking information
    * @param devicePassthroughs   The device passthroughs
+   * @param entrypoint           An override for the image entrypoint.
    */
 
   public SvService
@@ -84,7 +88,8 @@ public record SvService(
     Objects.requireNonNull(description, "description");
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(image, "image");
-    Objects.requireNonNull(outboundAddress, "outboundAddress");
+    Objects.requireNonNull(networking, "outboundAddress");
+    Objects.requireNonNull(entrypoint, "entrypoint");
 
     ports = List.copyOf(ports);
     volumes = List.copyOf(volumes);

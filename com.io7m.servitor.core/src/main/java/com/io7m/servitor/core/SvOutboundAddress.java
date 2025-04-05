@@ -23,21 +23,21 @@ import java.util.Optional;
 /**
  * The outbound address of a container.
  *
- * @param ipv4Address The IPv4 host
- * @param ipv6Address The IPv6 host
+ * @param ipv4Address The optional IPv4 host
+ * @param ipv6Address The optional IPv6 host
  * @param mtu         The optional MTU size
  */
 
 public record SvOutboundAddress(
-  String ipv6Address,
+  Optional<String> ipv6Address,
   Optional<String> ipv4Address,
   Optional<Integer> mtu)
 {
   /**
    * The outbound address of a container.
    *
-   * @param ipv4Address The IPv4 host
-   * @param ipv6Address The IPv6 host
+   * @param ipv4Address The optional IPv4 host
+   * @param ipv6Address The optional IPv6 host
    * @param mtu         The optional MTU size
    */
 

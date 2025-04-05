@@ -27,6 +27,7 @@ module com.io7m.servitor.systemd
   requires com.io7m.servitor.core;
   requires org.apache.commons.text;
   requires org.jgrapht.core;
+  requires org.slf4j;
 
   exports com.io7m.servitor.systemd;
 }

@@ -28,6 +28,58 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public final class SvAddressResolverDNSJTest
 {
   @Test
+  public void testV4_0()
+    throws Exception
+  {
+    final var resolver =
+      SvAddressResolverDNSJ.create(Optional.empty());
+
+    final var r =
+      resolver.resolveIPV4("127.0.0.1");
+
+    assertEquals("127.0.0.1", r.getHostAddress());
+  }
+
+  @Test
+  public void testV4_1()
+    throws Exception
+  {
+    final var resolver =
+      SvAddressResolverDNSJ.create(Optional.empty());
+
+    final var r =
+      resolver.resolveIPV4("0.0.0.0");
+
+    assertEquals("0.0.0.0", r.getHostAddress());
+  }
+
+  @Test
+  public void testV6_0()
+    throws Exception
+  {
+    final var resolver =
+      SvAddressResolverDNSJ.create(Optional.empty());
+
+    final var r =
+      resolver.resolveIPV6("::1");
+
+    assertEquals("0:0:0:0:0:0:0:1", r.getHostAddress());
+  }
+
+  @Test
+  public void testV6_1()
+    throws Exception
+  {
+    final var resolver =
+      SvAddressResolverDNSJ.create(Optional.empty());
+
+    final var r =
+      resolver.resolveIPV6("::");
+
+    assertEquals("0:0:0:0:0:0:0:0", r.getHostAddress());
+  }
+
+  @Test
   public void testA()
     throws Exception
   {

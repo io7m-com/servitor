@@ -20,7 +20,12 @@ import com.io7m.jaffirm.core.Postconditions;
 import com.io7m.servitor.core.SvAddressResolverType;
 import com.io7m.servitor.core.SvConfiguration;
 import com.io7m.servitor.core.SvDevicePassthrough;
+import com.io7m.servitor.core.SvEntrypoint;
 import com.io7m.servitor.core.SvException;
+import com.io7m.servitor.core.SvNetworkBackendBridge;
+import com.io7m.servitor.core.SvNetworkBackendPasta;
+import com.io7m.servitor.core.SvNetworkBackendSlirp4NetNS;
+import com.io7m.servitor.core.SvNetworking;
 import com.io7m.servitor.core.SvOCIImage;
 import com.io7m.servitor.core.SvOutboundAddress;
 import com.io7m.servitor.core.SvPublishPort;
@@ -32,6 +37,8 @@ import com.io7m.servitor.core.SvVolumeFlag;
 import com.io7m.servitor.core.SvVolumeType;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jgrapht.traverse.DepthFirstIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -40,6 +47,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,6 +67,9 @@ import static com.io7m.servitor.core.SvContainerFlag.REMAP_USER_TO_CONTAINER_ROO
 
 public final class SvUnitGeneration
 {
+  private static final Logger LOG =
+    LoggerFactory.getLogger(SvUnitGeneration.class);
+
   private SvUnitGeneration()
   {
 
@@ -276,13 +287,26 @@ public final class SvUnitGeneration
     writer.println("  --replace \\");
 
     writeDevicePassthroughs(writer, service.devicePassthroughs());
+    writeEntrypoint(writer, service.entrypoint());
     writeEnvironmentVariables(writer, service.environmentVariables());
     writeVolumes(writer, service.volumes());
-    writeOutboundAddress(resolver, writer, service.outboundAddress());
-    writePorts(resolver, writer, service.ports());
+    writeNetwork(resolver, writer, service, service.networking());
+    writePorts(resolver, writer, service, service.ports());
     writeImage(writer, service.image());
     writeArguments(writer, service.containerArguments());
     writer.println();
+  }
+
+  private static void writeEntrypoint(
+    final PrintWriter writer,
+    final Optional<SvEntrypoint> entrypoint)
+  {
+    if (entrypoint.isPresent()) {
+      writer.printf(
+        "  --entrypoint='%s' \\%n",
+        StringEscapeUtils.escapeJava(entrypoint.get().path())
+      );
+    }
   }
 
   private static void writeDevicePassthroughs(
@@ -316,38 +340,153 @@ public final class SvUnitGeneration
     writer.printf(" \\%n");
   }
 
-  private static void writeOutboundAddress(
+  private static void writeNetwork(
     final SvAddressResolverType resolver,
     final PrintWriter writer,
-    final SvOutboundAddress outbound)
+    final SvService service,
+    final SvNetworking networking)
     throws SvException
   {
-    final var inet6 =
-      lookupIPv6(resolver, outbound.ipv6Address());
+    switch (networking.backend()) {
+      case final SvNetworkBackendBridge bridge -> {
+        writeNetworkBridge(
+          resolver,
+          writer,
+          service,
+          bridge,
+          networking.outboundAddress()
+        );
+      }
+      case final SvNetworkBackendPasta pasta -> {
+        writeNetworkPasta(
+          resolver,
+          writer,
+          service,
+          pasta,
+          networking.outboundAddress()
+        );
+      }
+      case final SvNetworkBackendSlirp4NetNS slirp4NetNS -> {
+        writeNetworkSlirp4NetNS(
+          resolver,
+          writer,
+          service,
+          slirp4NetNS,
+          networking.outboundAddress()
+        );
+      }
+    }
+  }
 
-    Optional<Inet4Address> inet4 = Optional.empty();
-    final var text = outbound.ipv4Address();
-    if (text.isPresent()) {
-      inet4 = Optional.of(lookupIPv4(resolver, text.get()));
+  private static void writeNetworkSlirp4NetNS(
+    final SvAddressResolverType resolver,
+    final PrintWriter writer,
+    final SvService service,
+    final SvNetworkBackendSlirp4NetNS slirp4NetNS,
+    final Optional<SvOutboundAddress> outbound)
+    throws SvException
+  {
+    final var parts = new ArrayList<String>();
+    if (outbound.isPresent()) {
+      final var out =
+        outbound.get();
+
+      final var text6 = out.ipv6Address();
+      if (text6.isPresent()) {
+        final var inet6 = lookupIPv6(resolver, service, text6.get());
+        parts.add("outbound_addr6=%s".formatted(inet6.getHostAddress()));
+      }
+
+      final var text4 = out.ipv4Address();
+      if (text4.isPresent()) {
+        final var inet4 = lookupIPv4(resolver, service, text4.get());
+        parts.add("outbound_addr=%s".formatted(inet4.getHostAddress()));
+      }
+
+      out.mtu().ifPresent(mtuValue -> {
+        parts.add("mtu=%d".formatted(mtuValue));
+      });
     }
 
-    writer.printf(
-      "  --network='slirp4netns:outbound_addr6=%s",
-      inet6.getHostAddress()
-    );
-    inet4.ifPresent(i4 -> {
-      writer.printf(
-        ",outbound_addr=%s",
-        i4.getHostAddress()
+    final var networkString = new StringBuilder(128);
+    networkString.append("slirp4netns");
+    if (parts.size() > 0) {
+      networkString.append(":");
+      networkString.append(String.join(",", parts));
+    }
+
+    writer.printf("  --network='%s'", networkString);
+    writer.printf(" \\%n");
+  }
+
+  private static void writeNetworkPasta(
+    final SvAddressResolverType resolver,
+    final PrintWriter writer,
+    final SvService service,
+    final SvNetworkBackendPasta pasta,
+    final Optional<SvOutboundAddress> outbound)
+    throws SvException
+  {
+    final var parts = new ArrayList<String>();
+
+    if (outbound.isPresent()) {
+      final var out =
+        outbound.get();
+
+      final var text6 = out.ipv6Address();
+      if (text6.isPresent()) {
+        final var inet6 = lookupIPv6(resolver, service, text6.get());
+        parts.add("--address");
+        parts.add(inet6.getHostAddress());
+      }
+
+      final var text4 = out.ipv4Address();
+      if (text4.isPresent()) {
+        final var inet4 = lookupIPv4(resolver, service, text4.get());
+        parts.add("--address");
+        parts.add(inet4.getHostAddress());
+      }
+
+      out.mtu().ifPresent(mtuValue -> {
+        parts.add("--mtu");
+        parts.add(mtuValue.toString());
+      });
+    }
+
+    parts.addAll(pasta.arguments());
+
+    final var networkString = new StringBuilder(128);
+    networkString.append("pasta");
+    if (parts.size() > 0) {
+      networkString.append(":");
+      networkString.append(String.join(",", parts));
+    }
+
+    writer.printf("  --network='%s'", networkString);
+    writer.printf(" \\%n");
+  }
+
+  private static void writeNetworkBridge(
+    final SvAddressResolverType resolver,
+    final PrintWriter writer,
+    final SvService service,
+    final SvNetworkBackendBridge bridge,
+    final Optional<SvOutboundAddress> outbound)
+    throws SvException
+  {
+    final var networkString = new StringBuilder(128);
+    networkString.append("bridge");
+
+    if (outbound.isPresent()) {
+      LOG.warn(
+        "Service {} ({}): Specifying outbound address info is not supported for bridged networking.",
+        service.name(),
+        service.id()
       );
-    });
-    outbound.mtu().ifPresent(mtuValue -> {
-      writer.printf(
-        ",mtu=%s",
-        mtuValue
-      );
-    });
-    writer.printf("' \\%n");
+    }
+
+    writer.printf("  --network='%s'", networkString);
+    writer.printf(" \\%n");
   }
 
   private static void writeArguments(
@@ -428,13 +567,14 @@ public final class SvUnitGeneration
   private static void writePorts(
     final SvAddressResolverType resolver,
     final PrintWriter writer,
+    final SvService service,
     final List<SvPublishPort> ports)
     throws SvException
   {
     for (final var port : ports) {
       writer.printf(
         "  --publish '%s:%s:%s/%s' \\%n",
-        formatAddress(resolver, port),
+        formatAddress(resolver, service, port),
         Integer.valueOf(port.portExternal()),
         Integer.valueOf(port.portInternal()),
         port.type().name().toLowerCase(Locale.ROOT)
@@ -444,14 +584,20 @@ public final class SvUnitGeneration
 
   private static Inet4Address lookupIPv4(
     final SvAddressResolverType resolver,
+    final SvService service,
     final String name)
     throws SvException
   {
-    return resolver.resolveIPV4(name);
+    try {
+      return resolver.resolveIPV4(name);
+    } catch (final SvException e) {
+      throw augmentWithServiceInfo(service, e);
+    }
   }
 
   private static InetAddress[] lookupAll(
     final SvAddressResolverType resolver,
+    final SvService service,
     final String name)
   {
     return resolver.resolveAll(name);
@@ -459,19 +605,41 @@ public final class SvUnitGeneration
 
   private static Inet6Address lookupIPv6(
     final SvAddressResolverType resolver,
+    final SvService service,
     final String name)
     throws SvException
   {
-    return resolver.resolveIPV6(name);
+    try {
+      return resolver.resolveIPV6(name);
+    } catch (final SvException e) {
+      throw augmentWithServiceInfo(service, e);
+    }
+  }
+
+  private static SvException augmentWithServiceInfo(
+    final SvService service,
+    final SvException e)
+  {
+    final var a = new HashMap<>(e.attributes());
+    a.put("Service", service.name().value());
+    a.put("Service ID", service.id().toString());
+    return new SvException(
+      e.getMessage(),
+      e,
+      e.errorCode(),
+      a,
+      e.remediatingAction()
+    );
   }
 
   private static String formatAddress(
     final SvAddressResolverType resolver,
+    final SvService service,
     final SvPublishPort port)
     throws SvException
   {
     final var addresses =
-      lookupAll(resolver, port.host());
+      lookupAll(resolver, service, port.host());
 
     return switch (port.family()) {
       case IPV4 -> {
@@ -484,7 +652,9 @@ public final class SvUnitGeneration
               "No IPv4 address could be resolved for the host.",
               "error-dns",
               Map.ofEntries(
-                Map.entry("Host", port.host())
+                Map.entry("Host", port.host()),
+                Map.entry("Service", service.name().value()),
+                Map.entry("Service ID", service.id().toString())
               ),
               Optional.empty()
             );
@@ -501,7 +671,9 @@ public final class SvUnitGeneration
                 "No IPv6 address could be resolved for the host.",
                 "error-dns",
                 Map.ofEntries(
-                  Map.entry("Host", port.host())
+                  Map.entry("Host", port.host()),
+                  Map.entry("Service", service.name().value()),
+                  Map.entry("Service ID", service.id().toString())
                 ),
                 Optional.empty()
               );

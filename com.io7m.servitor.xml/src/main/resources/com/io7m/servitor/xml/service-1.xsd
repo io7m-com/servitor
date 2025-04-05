@@ -664,6 +664,87 @@
     </unique>
   </element>
 
+  <complexType name="NetworkBackendType"
+               abstract="true">
+    <annotation>
+      <documentation xml:lang="en">
+        The type of network backends.
+      </documentation>
+    </annotation>
+  </complexType>
+
+  <element name="PastaArgument">
+    <annotation>
+      <documentation xml:lang="en">
+        An argument passed to the pasta network backend.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="Value"
+                 type="string"
+                 use="required"/>
+    </complexType>
+  </element>
+
+  <complexType name="NetworkBackendPastaType">
+    <annotation>
+      <documentation xml:lang="en">
+        The type of pasta network backends.
+      </documentation>
+    </annotation>
+
+    <sequence>
+      <element ref="s:PastaArgument"
+               minOccurs="0"
+               maxOccurs="unbounded"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="NetworkBackendBridgeType">
+    <annotation>
+      <documentation xml:lang="en">
+        The type of bridged network backends.
+      </documentation>
+    </annotation>
+
+    <complexContent>
+      <extension base="s:NetworkBackendType">
+
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="NetworkBackendSlirp4netnsType">
+    <annotation>
+      <documentation xml:lang="en">
+        The type of slirp4netns network backends.
+      </documentation>
+    </annotation>
+
+    <complexContent>
+      <extension base="s:NetworkBackendType">
+
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <element name="NetworkBackendPasta"
+           type="s:NetworkBackendPastaType"/>
+
+  <element name="NetworkBackendBridge"
+           type="s:NetworkBackendBridgeType"/>
+
+  <element name="NetworkBackendSlirp4netns"
+           type="s:NetworkBackendSlirp4netnsType"/>
+
+  <group name="NetworkBackendGroup">
+    <choice>
+      <element ref="s:NetworkBackendBridge"/>
+      <element ref="s:NetworkBackendPasta"/>
+      <element ref="s:NetworkBackendSlirp4netns"/>
+    </choice>
+  </group>
+
   <element name="OutboundAddress">
     <annotation>
       <documentation xml:lang="en">
@@ -677,10 +758,40 @@
                  use="optional"/>
       <attribute name="IPv6Address"
                  type="string"
-                 use="required"/>
+                 use="optional"/>
       <attribute name="IPv4Address"
                  type="string"
                  use="optional"/>
+    </complexType>
+  </element>
+
+  <element name="Networking">
+    <annotation>
+      <documentation xml:lang="en">
+        Networking information for a service.
+      </documentation>
+    </annotation>
+
+    <complexType>
+      <sequence>
+        <group ref="s:NetworkBackendGroup"/>
+        <element ref="s:OutboundAddress"
+                 minOccurs="0"
+                 maxOccurs="1"/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="Entrypoint">
+    <annotation>
+      <documentation xml:lang="en">
+        An override for the image entrypoint.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="Value"
+                 type="string"
+                 use="required"/>
     </complexType>
   </element>
 
@@ -711,6 +822,11 @@
 
           <sequence minOccurs="0"
                     maxOccurs="1">
+            <element ref="s:Entrypoint"/>
+          </sequence>
+
+          <sequence minOccurs="0"
+                    maxOccurs="1">
             <element ref="s:EnvironmentVariables"/>
           </sequence>
 
@@ -718,7 +834,7 @@
 
           <element ref="s:Limits"/>
 
-          <element ref="s:OutboundAddress"/>
+          <element ref="s:Networking"/>
 
           <sequence minOccurs="0"
                     maxOccurs="1">
